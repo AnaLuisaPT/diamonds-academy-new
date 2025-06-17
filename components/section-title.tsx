@@ -15,3 +15,4 @@ const SectionTitle: React.FC<SectionTitleProps> = ({ title, subtitle }) => {
 }
 
 export default SectionTitle
+

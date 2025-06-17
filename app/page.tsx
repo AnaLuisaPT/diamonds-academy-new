@@ -53,14 +53,39 @@ export default function Home() {
             title="Nuestras Clases Destacadas"
             subtitle="Descubre la clase perfecta para ti o tu pequeño bailarín"
           />
-          {/* GRID RESPONSIVO ACTUALIZADO PARA 5 CARDS */}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
             {[
-              { title: "Baby Ballet", age: "2-4 años", description: "🌟 ¡Sus primeros pasos en la danza! Clases lúdicas que estimulan la coordinación, la creatividad y el amor por el movimiento.", image: imageConfig.clases.babyBallet, placeholder: "Baby Ballet 2-4 años" },
-              { title: "Ballet Clásico Infantil", age: "5-7 años", description: "✨ Juego y técnica en equilibrio. Inician la base del ballet clásico a través de dinámicas entretenidas y didácticas.", image: imageConfig.clases.balletInfantil, placeholder: "Ballet Infantil 5-7 años" },
-              { title: "Ballet Formativo", age: "8-12 años", description: "💪 Disciplina y expresión. Se desarrollan habilidades técnicas y artísticas en un ambiente de crecimiento y motivación", image: imageConfig.clases.balletFormativo, placeholder: "Ballet Formativo" },
-              { title: "Ballet Juvenil", age: "13-17 años", description: "🔥 Pasión y técnica al siguiente nivel. Clases que desafían y perfeccionan, ideales para jóvenes comprometidos con la danza.", image: imageConfig.clases.balletJuvenil, placeholder: "Ballet Juvenil" },
-              { title: "Ballet Adulto", age: "18+ años", description: "💃 Nunca es tarde para bailar. Clases para todos los niveles que combinan bienestar, elegancia y una experiencia enriquecedora.", image: imageConfig.clases.balletAdultos, placeholder: "Ballet Adulto" },
+              { title: "Baby Ballet", 
+                age: "2-4 años", 
+                description: "🌟 ¡Sus primeros pasos en la danza! Clases lúdicas que estimulan la coordinación, la creatividad y el amor por el movimiento.",
+                image: imageConfig.clases.babyBallet, 
+                placeholder: "Baby Ballet 2-4 años" },
+
+              { title: "Ballet Clásico Infantil",
+                age: "5-7 años", 
+                description: "✨ Juego y técnica en equilibrio. Inician la base del ballet clásico a través de dinámicas entretenidas y didácticas.", 
+                image: imageConfig.clases.balletInfantil, 
+                placeholder: "Ballet Infantil 5-7 años" },
+
+              { title: "Ballet Formativo", 
+                age: "8-12 años", 
+                description: "💪 Disciplina y expresión. Se desarrollan habilidades técnicas y artísticas en un ambiente de crecimiento y motivación", 
+                image: imageConfig.clases.balletFormativo, 
+                placeholder: "Ballet Formativo" },
+
+              { title: "Ballet Juvenil", 
+                age: "13-17 años", 
+                description: "🔥 Pasión y técnica al siguiente nivel. Clases que desafían y perfeccionan, ideales para jóvenes comprometidos con la danza.", 
+                image: imageConfig.clases.balletJuvenil, 
+                placeholder: "Ballet Juvenil" },
+
+              { title: "Ballet Adulto", 
+                age: "18+ años", 
+                description: "💃 Nunca es tarde para bailar. Clases para todos los niveles que combinan bienestar, elegancia y una experiencia enriquecedora.", 
+                image: imageConfig.clases.balletAdultos, 
+                placeholder: "Ballet Adulto" },
+
             ].map((cls, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-violet/30 group overflow-hidden">
                 <div className="relative h-48 w-full overflow-hidden">
@@ -84,7 +109,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="text-center mt-16">
+          <div className="text-center mt-16 text-gray">
             <CTAButton href="/clases" variant="secondary">
               Ver Todas las Clases
             </CTAButton>

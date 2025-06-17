@@ -7,9 +7,13 @@ import Footer from "../components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
+
 export const metadata: Metadata = {
-  title: "Diamond's Academy - Academia de Ballet",
-  description: "Academia de ballet clásico para todas las edades y niveles",
+  title: "Diamond's Academy",
+  description: 'Academia de Ballet Clásico',
+  icons: {
+    icon: '/diamond.png',  // Tu archivo PNG
+  },
 }
 
 export default function RootLayout({

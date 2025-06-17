@@ -1,68 +1,93 @@
 import Image from "next/image"
 import SectionTitle from "@/components/section-title"
+import { Images } from "lucide-react"
+import { imageConfig } from "@/lib/image-config"
+import VideoPlayer from "@/components/video-player"
 
 export default function GalleryPage() {
   // Gallery images
   const galleryImages = [
     {
-      src: "/placeholder.svg?height=600&width=800",
-      alt: "Estudiantes en clase",
-      caption: "Clase de ballet intermedio",
+      image: imageConfig.galeria.galeria1,
+      alt: "Estudiantes en concentracion",
+      caption: "Ensayo ballet intermedio",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Ensayo de recital",
-      caption: "Ensayo para recital anual",
+      image: imageConfig.galeria.galeria2,
+      alt: "Preparacion de recital",
+      caption: "Preparacion recital anual",
     },
     {
-      src: "/placeholder.svg?height=600&width=800",
-      alt: "Bailarina en pose",
-      caption: "Arabesque perfecto",
+      image: imageConfig.galeria.galeria12,
+      alt: "Bailarina formativo",
+      caption: "Ensayos formativos",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Grupo de estudiantes",
+      image: imageConfig.galeria.galeria4,
+      alt: "Bailarina en el escenario",
       caption: "Nuestros estudiantes avanzados",
     },
     {
-      src: "/placeholder.svg?height=600&width=800",
+      image: imageConfig.galeria.galeria5,
       alt: "Presentación en escenario",
       caption: "Recital 'Las Cuatro Estaciones'",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Clase de puntas",
-      caption: "Primera clase de puntas",
+      image: imageConfig.galeria.galeria6,
+      alt: "Odette",
+      caption: "Variacion Lago de los Cisnes",
     },
     {
-      src: "/placeholder.svg?height=600&width=800",
+      image: imageConfig.galeria.galeria7,
       alt: "Estudio de ballet",
-      caption: "Nuestras instalaciones",
+      caption: "Ballet contemporaneo",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Bailarines en salto",
-      caption: "Grand jeté en clase avanzada",
+      image: imageConfig.galeria.galeria8,
+      alt: "Bailarines en cannon",
+      caption: "Cannon clase avanzada",
     },
     {
-      src: "/placeholder.svg?height=600&width=800",
-      alt: "Presentación infantil",
-      caption: "Presentación grupo infantil",
+      image: imageConfig.galeria.galeria9,
+      alt: "Presentación grupo juvenil",
+      caption: "Presentación grupo juvenil",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Bailarina solista",
-      caption: "Variación del Lago de los Cisnes",
+      image: imageConfig.galeria.galeria10,
+      alt: "Bailarinas",
+      caption: "Variacion propia grupo adulto",
     },
     {
-      src: "/placeholder.svg?height=600&width=800",
-      alt: "Clase de ballet",
-      caption: "Trabajo en la barra",
+      image: imageConfig.galeria.galeria11,
+      alt: "Bailarina infantil",
+      caption: "Bailarina grupo infantil",
     },
     {
-      src: "/placeholder.svg?height=800&width=600",
-      alt: "Vestuario de ballet",
-      caption: "Vestuario para 'El Cascanueces'",
+      image: imageConfig.galeria.galeria3,
+      alt: "Bailarin",
+      caption: "Bailarin destacado 2024",
+    },
+  ]
+
+    // Gallery videos
+  const galleryVideos = [
+    {
+      src: imageConfig.videos.escenario1,
+      title: "Fantasias del movimiento",
+      description: "Envolvemos al publico en nuestra magia",
+      duration: "0:12",
+      autoplay: true, // Autoplay específico para este video
+      muted: true,
+      loop: true,
+    },
+    {
+      src: imageConfig.videos.escenario2,
+      title: "El sueño es real",
+      description: "Te impulsamos a cumplir tus metas",
+      duration: "0:10",
+      autoplay: true, // Autoplay específico para este video
+      muted: true,
+      loop: true,
     },
   ]
 
@@ -92,7 +117,7 @@ export default function GalleryPage() {
               >
                 <div className="relative h-80 w-full">
                   <Image
-                    src={image.src || "/placeholder.svg"}
+                    src={image.image || "/placeholder.svg"}
                     alt={image.alt}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -110,22 +135,30 @@ export default function GalleryPage() {
       {/* Videos Section */}
       <section className="py-16 bg-gradient-to-r from-violet/10 via-white to-turquoise/10">
         <div className="container mx-auto px-4">
-          <SectionTitle title="Videos Destacados" />
+          <SectionTitle title="Videos Destacados" subtitle="Momentos especiales de nuestras clases y presentaciones" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[1, 2].map((video) => (
-              <div key={video} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="relative pt-[56.25%]">
-                  {/* Placeholder for video - in a real implementation, this would be a YouTube embed or video player */}
-                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                    <p className="text-gray-500">Video Placeholder {video}</p>
+            {galleryVideos.map((video, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="relative h-64 md:h-80">
+                  <VideoPlayer
+                    src={video.src}
+                    title={video.title}
+                    className="h-full"
+                    autoplay={video.autoplay} // Autoplay inmediato
+                    muted={video.muted} // Muted para que funcione
+                    loop={video.loop} // Loop para repetir
+                  />
+                </div> 
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-lg text-gray-800">{video.title}</h3>
+                    <span className="text-sm text-violet font-medium">{video.duration}</span>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2">Recital Anual {2024 - video + 1}</h3>
-                  <p className="text-gray-700">
-                    Highlights de nuestro recital anual con presentaciones de todos los niveles.
-                  </p>
+                  <p className="text-gray-600 text-sm leading-relaxed">{video.description}</p>
                 </div>
               </div>
             ))}
@@ -136,7 +169,9 @@ export default function GalleryPage() {
       {/* Performances */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <SectionTitle title="Nuestras Presentaciones" />
+          <SectionTitle
+            title="Nuestras Presentaciones"
+            subtitle="" />
 
           <div className="space-y-12">
             {[
