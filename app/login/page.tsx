@@ -1,105 +1,80 @@
-'use client'
+'use client';
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import SectionTitle from "@/components/section-title"
-import { User, GraduationCap, Shield } from 'lucide-react'
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import SectionTitle from "@/components/section-title";
+import { loginUser } from "@/lib/api"; // Asegúrate de que este import sea correcto
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  // Eliminamos el estado 'userType' que ya no es necesario
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(""); // Nuevo estado para mostrar errores de login
+  const router = useRouter();
 
+  // --- ¡NUEVA FUNCIÓN handleSubmit CON LÓGICA REAL! ---
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault(); // Previene que la página se recargue
+    
+    setIsLoading(true);
+    setError(""); // Limpiamos errores anteriores
 
-    // Simulación de autenticación
-    setTimeout(() => {
-      // Redirigir según el tipo de usuario
-      switch (userType) {
-        case "administrador":
-          router.push("/dashboard/admin")
-          break
-        case "instructor":
-          router.push("/dashboard/instructor")
-          break
-        case "alumno":
-          router.push("/dashboard/alumno")
-          break
-        default:
-          alert("Por favor selecciona un tipo de usuario")
+    try {
+      // Llamamos a la función de login real de nuestro archivo api.ts
+      const response = await loginUser(email, password);
+      
+      const userRole = response.user.rol.toLowerCase();
+
+      // Opcional: guardar el token para mantener la sesión en futuras visitas
+      if (typeof window !== "undefined") {
+        localStorage.setItem('authToken', response.token);
       }
-      setIsLoading(false)
-    }, 1000)
-  }
 
-  const getUserIcon = () => {
-    switch (userType) {
-      case "administrador":
-        return <Shield className="w-5 h-5" />
-      case "instructor":
-        return <GraduationCap className="w-5 h-5" />
-      case "alumno":
-        return <User className="w-5 h-5" />
-      default:
-        return <User className="w-5 h-5" />
+      // Redirigimos al usuario basándonos en el ROL que nos devuelve la API
+      if (userRole === "Administrador") {
+        router.push("/dashboard/admin");
+      } else if (userRole === "maestra") {
+        router.push("/dashboard/instructor");
+      } else if (userRole === "alumno") {
+        router.push("/dashboard/alumno");
+      } else {
+        setError("Rol de usuario no reconocido.");
+      }
+
+    } catch (err: any) {
+      // Si la API devuelve un error (ej: credenciales inválidas), lo mostramos
+      setError(err.message);
+    } finally {
+      // Esto se ejecuta siempre, haya error o no
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-turquoise/10 via-white to-magenta/10 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-md mx-auto">
-          <SectionTitle title="Acceso al Sistema" subtitle="Selecciona tu tipo de usuario e ingresa tus credenciales" />
+          <SectionTitle title="Acceso al Sistema" subtitle="Ingresa tus credenciales para continuar" />
 
           <Card className="border-0 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-turquoise to-violet bg-clip-text text-transparent flex items-center gap-2">
-                {getUserIcon()}
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-turquoise to-violet bg-clip-text text-transparent">
                 Iniciar Sesión
               </CardTitle>
-              <CardDescription>Accede a tu panel personalizado según tu rol</CardDescription>
+              <CardDescription>Accede a tu panel personalizado</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* El formulario ahora solo llama a la nueva función handleSubmit */}
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="userType">Tipo de Usuario</Label>
-                    <Select value={userType} onValueChange={setUserType} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona tu tipo de usuario" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="administrador">
-                          <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            Administrador
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="instructor">
-                          <div className="flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4" />
-                            Instructor
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="alumno">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            Alumno
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+
+                  {/* Campo de Correo Electrónico */}
                   <div className="grid gap-2">
                     <Label htmlFor="email">Correo Electrónico</Label>
                     <Input 
@@ -111,6 +86,8 @@ export default function LoginPage() {
                       required 
                     />
                   </div>
+
+                  {/* Campo de Contraseña */}
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password">Contraseña</Label>
@@ -126,9 +103,14 @@ export default function LoginPage() {
                       required 
                     />
                   </div>
+                  
+                  {/* Mostramos el mensaje de error si existe */}
+                  {error && <p className="text-sm text-red-600">{error}</p>}
+
+                  {/* Botón de Iniciar Sesión */}
                   <Button
                     type="submit"
-                    className="bg-gradient-to-r from-turquoise to-violet hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-turquoise to-violet hover:shadow-md transition-all w-full"
                     disabled={isLoading}
                   >
                     {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
@@ -148,5 +130,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
