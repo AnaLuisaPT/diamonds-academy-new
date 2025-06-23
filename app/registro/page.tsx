@@ -24,6 +24,8 @@ import {
   UserPlus,
   Phone,
 } from "lucide-react"
+import { registerUser } from "@/lib/api"
+import { ApiError } from "next/dist/server/api-utils"
 
 export default function RegistroPage() {
   const [formData, setFormData] = useState({
@@ -70,22 +72,31 @@ export default function RegistroPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const newErrors = validateForm()
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
+    setErrors({}); // Limpia errores antiguos
 
-    // Simulación de registro
-    setTimeout(() => {
-      alert("¡Registro exitoso! Revisa tu correo para activar tu cuenta.")
-      router.push("/login")
-    }, 2000)
-  }
+    try {
+      const result = await registerUser(formData);
+
+      console.log("Respuesta del backend:", result);
+      alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+      router.push("/login");
+    
+    } catch (error: any) {
+      // CORRECCIÓN: Usamos 'error.message' y la clave 'apiError'
+      setErrors({ apiError: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+};
 
   const getUserIcon = () => {
     switch (formData.userType) {
@@ -111,12 +122,12 @@ export default function RegistroPage() {
       case "instructor":
         return {
           title: "Registro de Instructor",
-          description: "Gestiona clases y estudiantes",
+          description: "Gestiona clases y Alumnos",
           gradient: "from-blue-500 to-purple-600",
         }
       case "alumno":
         return {
-          title: "Registro de Estudiante",
+          title: "Registro de Alumno",
           description: "Accede a tus clases y progreso",
           gradient: "from-green-500 to-teal-600",
         }
@@ -182,7 +193,7 @@ export default function RegistroPage() {
                             <User className="w-4 h-4 text-white" />
                           </div>
                           <div>
-                            <div className="font-semibold">Estudiante</div>
+                            <div className="font-semibold">Alumno</div>
                             <div className="text-xs text-gray-500">Tomar clases de ballet</div>
                           </div>
                         </div>
@@ -341,6 +352,8 @@ export default function RegistroPage() {
                     </Label>
                   </div>
                 </div>
+
+                {errors.apiError && <p className="text-red-500 text-sm text-center">{errors.apiError}</p>}
 
                 {/* Submit Button */}
                 <Button
