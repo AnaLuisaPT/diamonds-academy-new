@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1750659451052,
+    "status": "active",
+    "submittedAt": "2025-06-23T06:17:31.052Z",
+    "studentName": "Ana Luisa Panes Tessini",
+    "studentAge": "2-4",
+    "parentName": "Ana Panes Tessini",
+    "email": "ana.panes.tessini.ap@gmail.com",
+    "phone": "+56945421629",
+    "classType": "baby-ballet",
+    "experience": "principiante",
+    "schedule": "",
+    "medicalInfo": "iajsdhsauhdkhskahdkjahsd",
+    "comments": "asjdsahkdhsakdhksahkjdahs"
+  },
+
+  {
+    "email": "admin@diamante.com",
+    "password": "password123",
+    "name": "Administrador",
+    "role": "admin"
+  }
+]

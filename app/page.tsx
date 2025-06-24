@@ -2,6 +2,90 @@ import SmartImage from "@/components/smart-image"
 import CTAButton from "@/components/cta-button"
 import SectionTitle from "@/components/section-title"
 import { imageConfig } from "@/lib/image-config"
+import type { FC } from "react"
+
+// --- DATOS CENTRALIZADOS ---
+// Mantenemos los datos aquí para que sea fácil actualizarlos sin tocar el diseño.
+const featuredClassesData = [
+  { 
+    title: "Baby Ballet", 
+    age: "2-4 años", 
+    description: "🌟 ¡Sus primeros pasos en la danza! Clases lúdicas que estimulan la coordinación, la creatividad y el amor por el movimiento.",
+    image: imageConfig.clases.babyBallet, 
+    placeholder: "Baby Ballet 2-4 años" 
+  },
+  { 
+    title: "Ballet Clásico Infantil",
+    age: "5-7 años", 
+    description: "✨ Juego y técnica en equilibrio. Inician la base del ballet clásico a través de dinámicas entretenidas y didácticas.", 
+    image: imageConfig.clases.balletInfantil, 
+    placeholder: "Ballet Infantil 5-7 años" 
+  },
+  { 
+    title: "Ballet Formativo", 
+    age: "8-12 años", 
+    description: "💪 Disciplina y expresión. Se desarrollan habilidades técnicas y artísticas en un ambiente de crecimiento y motivación.", 
+    image: imageConfig.clases.balletFormativo, 
+    placeholder: "Ballet Formativo" 
+  },
+  { 
+    title: "Ballet Juvenil", 
+    age: "13-17 años", 
+    description: "🔥 Pasión y técnica al siguiente nivel. Clases que desafían y perfeccionan, ideales para jóvenes comprometidos con la danza.", 
+    image: imageConfig.clases.balletJuvenil, 
+    placeholder: "Ballet Juvenil" 
+  },
+  { 
+    title: "Ballet Adulto", 
+    age: "18+ años", 
+    description: "💃 Nunca es tarde para bailar. Clases para todos los niveles que combinan bienestar, elegancia y una experiencia enriquecedora.", 
+    image: imageConfig.clases.balletAdultos, 
+    placeholder: "Ballet Adulto" 
+  },
+];
+
+const aboutFeaturesData = [
+  "Instructores certificados con experiencia internacional",
+  "Instalaciones modernas y equipadas",
+  "Metodología adaptada a cada edad y nivel",
+  "Ambiente de apoyo y excelencia artística",
+];
+
+
+// --- COMPONENTE REUTILIZABLE: ClassCard ---
+// Este componente tiene exactamente el mismo diseño que tu código original.
+// Podría vivir en su propio archivo (ej. /components/class-card.tsx)
+interface ClassCardProps {
+  title: string;
+  age: string;
+  description: string;
+  image: any; // O un tipo más específico si lo tienes
+  placeholder: string;
+}
+
+const ClassCard: FC<ClassCardProps> = ({ title, age, description, image, placeholder }) => (
+  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-violet/30 group overflow-hidden">
+    <div className="relative h-48 w-full overflow-hidden">
+      <SmartImage
+        src={image}
+        alt={title}
+        fill
+        className="object-cover group-hover:scale-110 transition-transform duration-300"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 20vw"
+        placeholderText={placeholder}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </div>
+    <div className="p-4 md:p-6">
+      <h3 className="text-lg md:text-xl font-bold mb-2 text-gray-800 group-hover:text-violet transition-colors">
+        {title}
+      </h3>
+      <p className="text-violet font-semibold mb-3">{age}</p>
+      <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+    </div>
+  </div>
+);
+
 
 export default function Home() {
   return (
@@ -53,63 +137,12 @@ export default function Home() {
             title="Nuestras Clases Destacadas"
             subtitle="Descubre la clase perfecta para ti o tu pequeño bailarín"
           />
-          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
-            {[
-              { title: "Baby Ballet", 
-                age: "2-4 años", 
-                description: "🌟 ¡Sus primeros pasos en la danza! Clases lúdicas que estimulan la coordinación, la creatividad y el amor por el movimiento.",
-                image: imageConfig.clases.babyBallet, 
-                placeholder: "Baby Ballet 2-4 años" },
-
-              { title: "Ballet Clásico Infantil",
-                age: "5-7 años", 
-                description: "✨ Juego y técnica en equilibrio. Inician la base del ballet clásico a través de dinámicas entretenidas y didácticas.", 
-                image: imageConfig.clases.balletInfantil, 
-                placeholder: "Ballet Infantil 5-7 años" },
-
-              { title: "Ballet Formativo", 
-                age: "8-12 años", 
-                description: "💪 Disciplina y expresión. Se desarrollan habilidades técnicas y artísticas en un ambiente de crecimiento y motivación", 
-                image: imageConfig.clases.balletFormativo, 
-                placeholder: "Ballet Formativo" },
-
-              { title: "Ballet Juvenil", 
-                age: "13-17 años", 
-                description: "🔥 Pasión y técnica al siguiente nivel. Clases que desafían y perfeccionan, ideales para jóvenes comprometidos con la danza.", 
-                image: imageConfig.clases.balletJuvenil, 
-                placeholder: "Ballet Juvenil" },
-
-              { title: "Ballet Adulto", 
-                age: "18+ años", 
-                description: "💃 Nunca es tarde para bailar. Clases para todos los niveles que combinan bienestar, elegancia y una experiencia enriquecedora.", 
-                image: imageConfig.clases.balletAdultos, 
-                placeholder: "Ballet Adulto" },
-
-            ].map((cls, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-violet/30 group overflow-hidden">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <SmartImage
-                    src={cls.image}
-                    alt={cls.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 20vw"
-                    placeholderText={cls.placeholder}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <div className="p-4 md:p-6">
-                  <h3 className="text-lg md:text-xl font-bold mb-2 text-gray-800 group-hover:text-violet transition-colors">
-                    {cls.title}
-                  </h3>
-                  <p className="text-violet font-semibold mb-3">{cls.age}</p>
-                  <p className="text-gray-600 text-sm leading-relaxed">{cls.description}</p>
-                </div>
-              </div>
+            {featuredClassesData.map((cls) => (
+              <ClassCard key={cls.title} {...cls} />
             ))}
           </div>
-          <div className="text-center mt-16 text-gray">
+          <div className="text-center mt-16">
             <CTAButton href="/clases" variant="secondary">
               Ver Todas las Clases
             </CTAButton>
@@ -139,19 +172,14 @@ export default function Home() {
                 En Diamond&apos;s Academy, creemos que el ballet es más que una danza; es una disciplina que forma
                 carácter, fomenta la creatividad y celebra la belleza del movimiento.
               </p>
-              <div className="space-y-4 mb-8">
-                {[
-                  "Instructores certificados con experiencia internacional",
-                  "Instalaciones modernas y equipadas",
-                  "Metodología adaptada a cada edad y nivel",
-                  "Ambiente de apoyo y excelencia artística",
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center">
+              <ul className="space-y-4 mb-8">
+                {aboutFeaturesData.map((feature, index) => (
+                  <li key={index} className="flex items-center">
                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-turquoise to-violet mr-4"></div>
-                    <p className="text-gray-700">{item}</p>
-                  </div>
+                    <p className="text-gray-700">{feature}</p>
+                  </li>
                 ))}
-              </div>
+              </ul>
               <CTAButton href="/nosotros" variant="secondary">
                 Conoce Nuestra Historia
               </CTAButton>
