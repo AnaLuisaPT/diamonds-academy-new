@@ -1,316 +1,183 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
-import { submitInscription } from "@/app/actions/inscription"
-import CTAButton from "@/components/cta-button"
+import { useState } from "react";
+import { submitInscription } from "@/app/actions/inscription";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
+import { toast } from "sonner";
 
 interface FormData {
-  studentName: string
-  studentAge: string
-  parentName: string
-  email: string
-  phone: string
-  classType: string
-  experience: string
-  schedule: string
-  medicalInfo: string
-  comments: string
+  studentName: string; studentAge: string; parentName: string;
+  email: string; phone: string; classType: string;
+  experience: string; schedule: string; medicalInfo: string; comments: string;
 }
 
+const initialFormData: FormData = {
+  studentName: "", studentAge: "", parentName: "", email: "", phone: "",
+  classType: "", experience: "", schedule: "", medicalInfo: "", comments: "",
+};
+
 export default function InscriptionForm() {
-  const [formData, setFormData] = useState<FormData>({
-    studentName: "",
-    studentAge: "",
-    parentName: "",
-    email: "",
-    phone: "",
-    classType: "",
-    experience: "",
-    schedule: "",
-    medicalInfo: "",
-    comments: "",
-  })
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
-  }
+  const handleSelectChange = (name: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    try {
-      await submitInscription(formData)
-      setSubmitted(true)
-    } catch (error) {
-      console.error("Error al enviar inscripción:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    const promise = submitInscription(formData);
+    toast.promise(promise, {
+      loading: 'Enviando tu inscripción...',
+      success: (result) => {
+        if (result.success) {
+          setSubmitted(true);
+          return '¡Inscripción recibida con éxito!';
+        } else {
+          throw new Error(result.message);
+        }
+      },
+      error: (err) => `Error: ${err.message}`,
+    });
+    setIsSubmitting(false);
+  };
 
   if (submitted) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-6">✨</div>
         <h2 className="text-3xl font-bold mb-4 gradient-text">¡Inscripción Enviada!</h2>
-        <p className="text-lg text-gray-700 mb-8">
-          Gracias por tu interés en Diamond's Academy. Nos pondremos en contacto contigo dentro de las próximas 24
-          horas.
+        <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+          Gracias por tu interés en Diamond's Academy. Nos pondremos en contacto contigo dentro de las próximas 24 horas para confirmar los detalles.
         </p>
-        <CTAButton href="/" variant="primary">
-          Volver al Inicio
-        </CTAButton>
+        <Button asChild size="lg">
+          <Link href="/">Volver al Inicio</Link>
+        </Button>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="inscription-form">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Formulario de Inscripción</h2>
-          <p className="text-gray-600">Completa todos los campos para procesar tu inscripción</p>
-        </div>
-
-        {/* Información del Estudiante */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold section-title">Información del Estudiante</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="studentName" className="form-label">
-                Nombre Completo del Estudiante *
-              </label>
-              <input
-                type="text"
-                id="studentName"
-                name="studentName"
-                required
-                value={formData.studentName}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Nombre completo"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="studentAge" className="form-label">
-                Edad *
-              </label>
-              <select
-                id="studentAge"
-                name="studentAge"
-                required
-                value={formData.studentAge}
-                onChange={handleChange}
-                className="form-select"
-              >
-                <option value="">Selecciona la edad</option>
-                <option value="2-4">2-4 años</option>
-                <option value="5-7">5-7 años</option>
-                <option value="8-12">8-12 años</option>
-                <option value="13-17">13-17 años</option>
-                <option value="18+">18+ años</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Información del Contacto */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold section-title">Información de Contacto</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="parentName" className="form-label">
-                Nombre del Padre/Madre/Tutor
-              </label>
-              <input
-                type="text"
-                id="parentName"
-                name="parentName"
-                value={formData.parentName}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Solo si el estudiante es menor de edad"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="form-label">
-                Correo Electrónico *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="correo@ejemplo.com"
-              />
-            </div>
-          </div>
-
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* -- Información del Estudiante -- */}
+      <fieldset className="space-y-6 border-l-4 border-violet-200 pl-6">
+        <legend className="text-xl font-semibold text-gray-800">Información del Estudiante</legend>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="phone" className="form-label">
-              Teléfono *
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              required
-              value={formData.phone}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="+56 9 1234 5678"
-            />
+            <Label htmlFor="studentName">Nombre Completo del Estudiante *</Label>
+            <Input id="studentName" name="studentName" required value={formData.studentName} onChange={handleChange} placeholder="Nombre completo" />
           </div>
-        </div>
-
-        {/* Información de la Clase */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold section-title">Información de la Clase</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="classType" className="form-label">
-                Tipo de Clase *
-              </label>
-              <select
-                id="classType"
-                name="classType"
-                required
-                value={formData.classType}
-                onChange={handleChange}
-                className="form-select"
-              >
-                <option value="">Selecciona una clase</option>
-                <option value="baby-ballet">Baby Ballet (2-4 años)</option>
-                <option value="ballet-infantil">Ballet Clásico Infantil (5-7 años)</option>
-                <option value="ballet-formativo">Ballet Formativo (8-12 años)</option>
-                <option value="ballet-juvenil">Ballet Juvenil (13-17 años)</option>
-                <option value="ballet-adulto">Ballet Adulto (18+ años)</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="experience" className="form-label">
-                Experiencia Previa *
-              </label>
-              <select
-                id="experience"
-                name="experience"
-                required
-                value={formData.experience}
-                onChange={handleChange}
-                className="form-select"
-              >
-                <option value="">Selecciona tu nivel</option>
-                <option value="principiante">Principiante (Sin experiencia)</option>
-                <option value="basico">Básico (Menos de 1 año)</option>
-                <option value="intermedio">Intermedio (1-3 años)</option>
-                <option value="avanzado">Avanzado (Más de 3 años)</option>
-              </select>
-            </div>
-          </div>
-
           <div>
-            <label htmlFor="schedule" className="form-label">
-              Preferencia de Horario *
-            </label>
-            <select
-              id="schedule"
-              name="schedule"
-              required
-              value={formData.schedule}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="">Selecciona tu preferencia</option>
-              <option value="matutino">Matutino (9:00 AM - 12:00 PM)</option>
-              <option value="vespertino">Vespertino (2:00 PM - 6:00 PM)</option>
-              <option value="nocturno">Nocturno (6:00 PM - 9:00 PM)</option>
-              <option value="sabados">Sábados</option>
-              <option value="flexible">Flexible</option>
-            </select>
+            <Label htmlFor="studentAge">Edad *</Label>
+            <Select name="studentAge" required value={formData.studentAge} onValueChange={(v) => handleSelectChange("studentAge", v)}>
+              <SelectTrigger><SelectValue placeholder="Selecciona la edad" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2-4">2-4 años</SelectItem>
+                <SelectItem value="5-7">5-7 años</SelectItem>
+                <SelectItem value="8-12">8-12 años</SelectItem>
+                <SelectItem value="13-17">13-17 años</SelectItem>
+                <SelectItem value="18+">18+ años</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
+      </fieldset>
 
-        {/* Información Adicional */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold section-title">Información Adicional</h3>
-
+      {/* -- Información de Contacto -- */}
+      <fieldset className="space-y-6 border-l-4 border-violet-200 pl-6">
+        <legend className="text-xl font-semibold text-gray-800">Información de Contacto</legend>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="medicalInfo" className="form-label">
-              Información Médica Relevante
-            </label>
-            <textarea
-              id="medicalInfo"
-              name="medicalInfo"
-              rows={3}
-              value={formData.medicalInfo}
-              onChange={handleChange}
-              className="form-textarea"
-              placeholder="Lesiones, condiciones médicas, alergias, etc."
-            />
+            <Label htmlFor="parentName">Nombre del Padre/Madre/Tutor</Label>
+            <Input id="parentName" name="parentName" value={formData.parentName} onChange={handleChange} placeholder="Solo si el estudiante es menor" />
           </div>
-
           <div>
-            <label htmlFor="comments" className="form-label">
-              Comentarios o Preguntas
-            </label>
-            <textarea
-              id="comments"
-              name="comments"
-              rows={4}
-              value={formData.comments}
-              onChange={handleChange}
-              className="form-textarea"
-              placeholder="¿Hay algo más que te gustaría que sepamos?"
-            />
+            <Label htmlFor="email">Correo Electrónico *</Label>
+            <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="correo@ejemplo.com" />
           </div>
         </div>
-
-        {/* Submit Button */}
-        <div className="text-center pt-6">
-          <button type="submit" disabled={isSubmitting} className="submit-button">
-            {isSubmitting ? (
-              <>
-                <svg
-                  className="spinner -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Enviando...
-              </>
-            ) : (
-              "Enviar Inscripción"
-            )}
-          </button>
-          <p className="text-sm text-gray-500 mt-4">
-            * Campos obligatorios. Nos pondremos en contacto contigo dentro de 24 horas.
-          </p>
+        <div>
+          <Label htmlFor="phone">Teléfono *</Label>
+          <Input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} placeholder="+56 9 1234 5678" />
         </div>
-      </form>
-    </div>
-  )
+      </fieldset>
+
+      {/* -- Información de la Clase -- */}
+      <fieldset className="space-y-6 border-l-4 border-violet-200 pl-6">
+        <legend className="text-xl font-semibold text-gray-800">Información de la Clase</legend>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="classType">Tipo de Clase *</Label>
+            <Select name="classType" required value={formData.classType} onValueChange={(v) => handleSelectChange("classType", v)}>
+              <SelectTrigger><SelectValue placeholder="Selecciona una clase" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="baby-ballet">Baby Ballet (2-4 años)</SelectItem>
+                <SelectItem value="ballet-infantil">Ballet Clásico Infantil (5-7)</SelectItem>
+                <SelectItem value="ballet-formativo">Ballet Formativo (8-12)</SelectItem>
+                <SelectItem value="ballet-juvenil">Ballet Juvenil (13-17)</SelectItem>
+                <SelectItem value="ballet-adulto">Ballet Adulto (18+)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="experience">Experiencia Previa *</Label>
+            <Select name="experience" required value={formData.experience} onValueChange={(v) => handleSelectChange("experience", v)}>
+              <SelectTrigger><SelectValue placeholder="Selecciona tu nivel" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="principiante">Principiante (Sin experiencia)</SelectItem>
+                <SelectItem value="basico">Básico (Menos de 1 año)</SelectItem>
+                <SelectItem value="intermedio">Intermedio (1-3 años)</SelectItem>
+                <SelectItem value="avanzado">Avanzado (Más de 3 años)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="schedule">Preferencia de Horario *</Label>
+          <Select name="schedule" required value={formData.schedule} onValueChange={(v) => handleSelectChange("schedule", v)}>                        <SelectTrigger><SelectValue placeholder="Selecciona tu preferencia" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="matutino">Matutino (9am - 12pm)</SelectItem>
+              <SelectItem value="vespertino">Vespertino (2pm - 6pm)</SelectItem>
+              <SelectItem value="nocturno">Nocturno (6pm - 9pm)</SelectItem>
+              <SelectItem value="sabados">Sábados</SelectItem>
+              <SelectItem value="flexible">Flexible</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </fieldset>
+
+      {/* -- Información Adicional -- */}
+      <fieldset className="space-y-6 border-l-4 border-violet-200 pl-6">
+        <legend className="text-xl font-semibold text-gray-800">Información Adicional</legend>
+        <div>
+          <Label htmlFor="medicalInfo">Información Médica Relevante</Label>
+          <Textarea id="medicalInfo" name="medicalInfo" value={formData.medicalInfo} onChange={handleChange} placeholder="Lesiones, alergias, condiciones médicas, etc." />
+        </div>
+        <div>
+          <Label htmlFor="comments">Comentarios o Preguntas</Label>
+          <Textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} placeholder="¿Hay algo más que te gustaría que sepamos?" />
+        </div>
+      </fieldset>
+
+      {/* -- Botón de Envío -- */}
+      <div className="text-center pt-6">
+        <Button type="submit" size="lg" disabled={isSubmitting}>
+          {isSubmitting ? "Enviando..." : "Enviar Inscripción"}
+        </Button>
+        <p className="text-sm text-gray-500 mt-4">* Campos obligatorios.</p>
+      </div>
+    </form>
+  );
 }
