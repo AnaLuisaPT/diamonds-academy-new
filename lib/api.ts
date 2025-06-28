@@ -28,13 +28,10 @@ export async function getRoles() {
 }
 
 export async function loginUser(email: string, password: string) {
-  // Corregimos el prefijo de la variable
   const USERS_API_URL = process.env.NEXT_PUBLIC_API_USUARIOS_URL;
-
   if (!USERS_API_URL) {
     throw new Error("La URL de la API de usuarios no está configurada.");
   }
-  // ... el resto de la función de login se mantiene igual ...
   const response = await fetch(`${USERS_API_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -44,8 +41,9 @@ export async function loginUser(email: string, password: string) {
   if (!response.ok) {
     throw new Error(data.error || 'Error en el login.');
   }
-  return data;
+  return data; // <-- El backend debe responder: { token, user }
 }
+
 
 // --- ¡NUEVA FUNCIÓN PARA REGISTRAR USUARIOS! ---
 export async function registerUser(userData: any) {

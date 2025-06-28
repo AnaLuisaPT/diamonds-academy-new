@@ -1,5 +1,5 @@
-<<<<<<< HEAD
 "use client" // no tocar esta linea, funcionamiento de pag interactiva
+
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -7,251 +7,132 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Sparkles } from "lucide-react"
-import SectionTitle from "@/components/section-title"
-import { loginUser } from "@/lib/api" // Importamos la función de login desde nuestro archivo de API
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react"
+import { loginUser } from "@/lib/api"
 
 export default function LoginPage() {
-  // Simplificamos el estado: ya no necesitamos 'userType'
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null) // Un único estado para los errores
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault() // Previene que la página se recargue
-    setError(null) // Limpiamos errores previos
+    e.preventDefault()
+    setError(null)
 
-    // Validación simple en el frontend
     if (!email || !password) {
       setError("El correo y la contraseña son requeridos.")
       return
     }
 
     setIsLoading(true)
-
     try {
-      // 1. LLAMADA REAL A LA API
-      const response = await loginUser(email, password);
-
-      // 2. ¡IMPLEMENTACIÓN DEL TOKEN!
-      // Si el login es exitoso, la respuesta contiene el token.
-      // Lo guardamos en el localStorage del navegador para usarlo en futuras peticiones.
+      const response = await loginUser(email, password)
       if (response.token) {
-        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('authToken', response.token)
+        localStorage.setItem('user', JSON.stringify(response.user))
       }
-      
-      // 3. OBTENEMOS EL ROL REAL DESDE LA RESPUESTA DE LA API
-      const userRole = response.user.rol.toLowerCase();
-
-      // 4. REDIRIGIMOS SEGÚN EL ROL REAL
+      const userRole = response.user.rol.toLowerCase()
       if (userRole === "administrador") {
-        router.push("/dashboard/admin");
+        router.push("/dashboard/admin")
       } else if (userRole === "maestra" || userRole === "instructor") {
-        router.push("/dashboard/instructor");
+        router.push("/dashboard/instructor")
       } else if (userRole === "alumno") {
-        router.push("/dashboard/alumno");
+        router.push("/dashboard/alumno")
       } else {
-        setError("Rol de usuario no reconocido.");
+        setError("Rol de usuario no reconocido.")
       }
-
     } catch (err: any) {
-      // 5. Si la API devuelve un error (ej: credenciales inválidas), lo mostramos
-      setError(err.message);
+      setError(err.message)
     } finally {
-      // Esto se ejecuta siempre, para asegurar que el botón se reactive
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
-=======
-"use client"
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { login } from '@/app/actions/auth';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/link';
-
-export default function LoginPage() {
-  const router = useRouter();
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const formData = new FormData(event.currentTarget);
-      const result = await login(formData);
-
-      if (result.success) {
-        toast.success('¡Bienvenido/a de vuelta!');
-        // Usamos un replace para que el usuario no pueda volver a la página de login con el botón de "atrás"
-        router.replace('/dashboard/admin');
-      } else {
-        setError(result.error || 'Ocurrió un error inesperado.');
-        toast.error(result.error || 'Ocurrió un error inesperado.');
-      }
-    } catch (e) {
-      setError('No se pudo conectar con el servidor.');
-      toast.error('No se pudo conectar con el servidor.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
->>>>>>> d1ff184bb8a7046a29da731b5acd437eb8bd286c
   return (
-    // (ESTILO) Añadimos el fondo degradado y centramos todo verticalmente
     <div className="min-h-screen flex items-center justify-center gradient-bg-light pt-20 px-4">
       <Card className="w-full max-w-md shadow-2xl border-violet-100 border rounded-2xl">
         <CardHeader className="text-center space-y-2">
           <Link href="/">
-             <h2 className="text-2xl font-bold gradient-text">Diamond's Academy</h2>
+            <h2 className="text-2xl font-bold gradient-text">Diamond's Academy</h2>
           </Link>
           <CardTitle className="text-3xl font-bold text-gray-800">Acceso al Panel</CardTitle>
           <CardDescription className="text-gray-600">Ingresa tus credenciales para continuar</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-700">Correo Electrónico</Label>
-              {/* (ESTILO) Personalizamos el input para que el foco sea del color de la marca */}
-              <Input 
-                id="email" 
-                name="email" 
-                type="email" 
-                placeholder="admin@diamante.com" 
-                required 
-                className="h-12 focus-visible:ring-violet-500"
-              />
-            </div>
-<<<<<<< HEAD
-            <h1 className="text-4xl font-bold text-white mb-2">Diamond's Academy</h1>
-            <p className="text-white/80 text-lg">Bienvenido de vuelta</p>
-          </div>
-
-          {/* Card principal */}
-          <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 relative z-20">
-            <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold gradient-text">Iniciar Sesión</CardTitle>
-              <CardDescription className="text-base">Ingresa a tu panel personalizado</CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              {/* El formulario ahora es más simple y llama a la nueva función handleSubmit */}
-              <form onSubmit={handleSubmit} className="space-y-6">
-                
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Correo Electrónico</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12 pl-10"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">Contraseña</Label>
-                    <Link href="/recuperar-contrasena" className="text-sm text-violet hover:underline">
-                      ¿Olvidaste tu contraseña?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-12 pl-10 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Div para mostrar errores de la API */}
-                {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-turquoise to-violet hover:shadow-md transition-all"
-                >
-                  {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-                  {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
-                </Button>
-              </form>
-            </CardContent>
-
-            <CardFooter className="text-center pt-6">
-              <div className="w-full">
-                <div className="text-sm text-gray-600">
-                  ¿No tienes una cuenta?{" "}
-                  <Link href="/registro" className="text-violet hover:text-violet/80 font-semibold">
-                    Regístrate aquí
-                  </Link>
-                </div>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="admin@diamante.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  className="h-12 pl-10 focus-visible:ring-violet-500"
+                />
               </div>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
-    </div>
-  )
-=======
+            </div>
+            {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input 
-                id="password" 
-                name="password" 
-                type="password" 
-                required 
-                className="h-12 focus-visible:ring-violet-500"
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-gray-700">Contraseña</Label>
+                <Link href="/recuperar-contrasena" className="text-sm text-violet hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  className="h-12 pl-10 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
-            {error && <p className="text-sm font-medium text-red-500 text-center">{error}</p>}
-            <div className="pt-2">
-               {/* (ESTILO) Aplicamos tu botón de gradiente personalizado */}
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-lg text-white font-semibold rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:opacity-90 transition-opacity"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Verificando...' : 'Ingresar'}
-              </Button>
-            </div>
+            {/* Error */}
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-turquoise to-violet hover:shadow-md transition-all"
+            >
+              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+              {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
+            </Button>
           </form>
         </CardContent>
+        <CardFooter className="text-center pt-6">
+          <div className="w-full">
+            <div className="text-sm text-gray-600">
+              ¿No tienes una cuenta?{" "}
+              <Link href="/registro" className="text-violet hover:text-violet/80 font-semibold">
+                Regístrate aquí
+              </Link>
+            </div>
+          </div>
+        </CardFooter>
       </Card>
     </div>
-  );
->>>>>>> d1ff184bb8a7046a29da731b5acd437eb8bd286c
+  )
 }
