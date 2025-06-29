@@ -1,17 +1,17 @@
 [
   {
-    "studentName": "Antonia Ceron",
-    "studentAge": "8-12",
-    "parentName": "Padre",
-    "email": "aa.gonzalezv96@gmail.com",
-    "phone": "9 7274 0404",
-    "classType": "ballet-formativo",
+    "studentName": "Vivian Caceres",
+    "studentAge": "18+",
+    "parentName": "",
+    "email": "alumno@diamante.com",
+    "phone": "+56972740404",
+    "classType": "ballet-adulto",
     "experience": "avanzado",
-    "schedule": "",
+    "schedule": "flexible",
     "medicalInfo": "",
     "comments": "",
-    "id": 1751163496842,
+    "id": 1751236217197,
     "status": "pending",
-    "submittedAt": "2025-06-29T02:18:16.842Z"
+    "submittedAt": "2025-06-29T22:30:17.197Z"
   }
 ]

@@ -79,5 +79,20 @@
     "id": 1751162576493,
     "status": "active",
     "submittedAt": "2025-06-29T02:02:56.493Z"
+  },
+  {
+    "studentName": "Vivian Caceres",
+    "studentAge": "18+",
+    "parentName": "",
+    "email": "alumno@diamante.com",
+    "phone": "+56972740404",
+    "classType": "ballet-formativo",
+    "experience": "avanzado",
+    "schedule": "flexible",
+    "medicalInfo": "nada",
+    "comments": "nada",
+    "id": 1751233923227,
+    "status": "active",
+    "submittedAt": "2025-06-29T21:52:03.227Z"
   }
 ]
