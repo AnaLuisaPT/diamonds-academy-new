@@ -1,141 +1,143 @@
+/**
+ * lib/api.ts
+ * Cliente HTTP para todos los módulos de la academia.
+ * Usa variables de entorno definidas en .env.local para las URLs.
+ */
 
-export async function getRoles() {
+const API_USUARIOS       = process.env.NEXT_PUBLIC_API_USUARIOS_URL;
+const API_ROLES          = process.env.NEXT_PUBLIC_API_ROLES_URL;
+const API_INSCRIPCIONES  = process.env.NEXT_PUBLIC_API_INSCRIPCIONES_URL;
+const API_NIVELES        = process.env.NEXT_PUBLIC_API_NIVELES_URL;
+const API_ASISTENCIA     = process.env.NEXT_PUBLIC_API_ASISTENCIA_URL;
+const API_CALIFICACIONES = process.env.NEXT_PUBLIC_API_CALIFICACIONES_URL;
 
-  const ROLES_API_URL = process.env.NEXT_PUBLIC_API_ROLES_URL; 
-
-  // Es una buena práctica verificar que la URL se cargó correctamente.
-  if (!ROLES_API_URL) {
-    console.error("URL del servicio de Roles no encontrada. Revisa el archivo .env.local");
-    // Devolvemos una lista vacía para que la aplicación no se rompa.
-    return [];
-  }
-
-  try {
-    // Hacemos la petición GET al endpoint /roles
-    const response = await fetch(`${ROLES_API_URL}/roles`);
-
-    if (!response.ok) {
-      throw new Error(`La respuesta de la red no fue exitosa: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data; // Devuelve la lista de roles
-
-  } catch (error) {
-    console.error('Error al obtener los roles:', error);
-    return []; // Devuelve una lista vacía si hay un error
-  }
+interface LoginResponse {
+  token: string;
+  user: { id: string; nombre: string; email: string; rol: string };
 }
 
-export async function loginUser(email: string, password: string) {
-  const USERS_API_URL = process.env.NEXT_PUBLIC_API_USUARIOS_URL;
-  if (!USERS_API_URL) {
-    throw new Error("La URL de la API de usuarios no está configurada.");
-  }
-  const response = await fetch(`${USERS_API_URL}/login`, {
-    method: 'POST',
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(payload.error || payload.message || res.statusText);
+  }
+  return payload as T;
+}
+
+// ===== Roles =====
+export async function getRoles(): Promise<{ id: string; nombre: string }[]> {
+  if (!API_ROLES) return [];
+  return request(`${API_ROLES}/roles`);
+}
+
+// ===== Autenticación =====
+export async function loginUser(email: string, password: string): Promise<LoginResponse> {
+  if (!API_USUARIOS) throw new Error('API_USUARIOS no configurada');
+  return request<LoginResponse>(`${API_USUARIOS}/login`, {
+    method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || 'Error en el login.');
-  }
-  return data; // <-- El backend debe responder: { token, user }
 }
 
-
-// --- ¡NUEVA FUNCIÓN PARA REGISTRAR USUARIOS! ---
-export async function registerUser(userData: any) {
-  const USERS_API_URL = process.env.NEXT_PUBLIC_API_USUARIOS_URL;
-
-  if (!USERS_API_URL) {
-    throw new Error("La URL de la API de usuarios no está configurada.");
-  }
-
-  // Mapeamos los datos del formulario a lo que espera el backend
+// ===== Usuarios =====
+export async function registerUser(data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  userType: string;
+  phone?: string;
+}): Promise<{ id: string; nombre: string; email: string; rol: string }> {
+  if (!API_USUARIOS) throw new Error('API_USUARIOS no configurada');
   const payload = {
-    nombre: `${userData.firstName} ${userData.lastName}`,
-    email: userData.email,
-    password: userData.password,
-    rol: userData.userType,
-    telefono: userData.phone
+    nombre: `${data.firstName} ${data.lastName}`,
+    email: data.email,
+    password: data.password,
+    rol: data.userType,
+    telefono: data.phone,
   };
-
-  const response = await fetch(`${USERS_API_URL}/users`, {
+  return request(`${API_USUARIOS}/users`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Error al registrar el usuario.");
-  }
-  return data;
 }
 
-//ASISTENCIA
 export async function getUserById(userId: string) {
-  const USERS_API_URL = process.env.NEXT_PUBLIC_API_USUARIOS_URL;
-  if (!USERS_API_URL) throw new Error("URL de API de usuarios no configurada.");
-  const response = await fetch(`${USERS_API_URL}/users/${userId}`);
-  if (!response.ok) throw new Error("Error al obtener datos del usuario.");
-  return response.json();
+  if (!API_USUARIOS) throw new Error('API_USUARIOS no configurada');
+  return request(`${API_USUARIOS}/users/${userId}`);
 }
 
+// ===== Niveles =====
 export async function getNivelById(nivelId: string) {
-  const NIVELES_API_URL = process.env.NEXT_PUBLIC_API_NIVELES_URL;
-  if (!NIVELES_API_URL) throw new Error("URL de API de niveles no configurada.");
-  const response = await fetch(`${NIVELES_API_URL}/niveles/${nivelId}`);
-  if (!response.ok) throw new Error("Error al obtener datos del nivel.");
-  return response.json();
+  if (!API_NIVELES) throw new Error('API_NIVELES no configurada');
+  return request(`${API_NIVELES}/niveles/${nivelId}`);
 }
 
+// ===== Asistencia =====
 export async function getAsistenciaByAlumnoId(alumnoId: string) {
-  const ASISTENCIA_API_URL = process.env.NEXT_PUBLIC_API_ASISTENCIA_URL;
-  if (!ASISTENCIA_API_URL) throw new Error("URL de API de asistencia no configurada.");
-  // Este es el nuevo endpoint que creamos
-  const response = await fetch(`${ASISTENCIA_API_URL}/asistencia/alumno/${alumnoId}`);
-  if (!response.ok) throw new Error("Error al obtener historial de asistencia.");
-  return response.json();
+  if (!API_ASISTENCIA) throw new Error('API_ASISTENCIA no configurada');
+  return request(`${API_ASISTENCIA}/asistencias/${alumnoId}`);
 }
 
+// ===== Calificaciones =====
 export async function getCalificacionesByAlumnoId(alumnoId: string) {
-  const CALIFICACIONES_API_URL = process.env.NEXT_PUBLIC_API_CALIFICACIONES_URL;
-  if (!CALIFICACIONES_API_URL) throw new Error("URL de API de calificaciones no configurada.");
-  const response = await fetch(`${CALIFICACIONES_API_URL}/calificaciones/alumno/${alumnoId}`);
-  if (!response.ok) throw new Error("Error al obtener calificaciones.");
-  return response.json();
+  if (!API_CALIFICACIONES) throw new Error('API_CALIFICACIONES no configurada');
+  return request(`${API_CALIFICACIONES}/calificaciones/${alumnoId}`);
 }
 
-export async function getMaterialesByNivelId(nivelId: string) {
-    const MATERIAL_API_URL = process.env.NEXT_PUBLIC_API_MATERIAL_URL;
-    if (!MATERIAL_API_URL) throw new Error("URL de API de material no configurada.");
-    // Nota: este endpoint en realidad usa la URL de niveles. Esto es algo que podríamos refactorizar.
-    const NIVELES_API_URL = process.env.NEXT_PUBLIC_API_NIVELES_URL;
-    const response = await fetch(`${NIVELES_API_URL}/niveles/${nivelId}/materiales`);
-    if (!response.ok) throw new Error("Error al obtener materiales.");
-    return response.json();
+// ===== Inscripciones =====
+export interface InscripcionDTO {
+  id: string;
+  studentName: string;
+  studentAge: string;
+  parentName?: string;
+  email: string;
+  phone: string;
+  classType: string;
+  experience: string;
+  schedule: string;
+  medicalInfo?: string;
+  comments?: string;
+  status?: string;
+  submittedAt?: string;
 }
 
-//inscripcion
-export async function submitInscription(formData: any) {
-  const INSCRIPCIONES_API_URL = process.env.NEXT_PUBLIC_API_INSCRIPCIONES_URL;
-
-  if (!INSCRIPCIONES_API_URL) {
-    throw new Error("La URL de la API de inscripciones no está configurada.");
-  }
-
-  const response = await fetch(`${INSCRIPCIONES_API_URL}/inscripciones`, {
+/**
+ * Envía una nueva inscripción al servicio.
+ */
+export async function submitInscription(data: Omit<InscripcionDTO, 'id' | 'status' | 'submittedAt'>): Promise<{ success: boolean; message?: string }> {
+  if (!API_INSCRIPCIONES) throw new Error('API_INSCRIPCIONES no configurada');
+  return request(`${API_INSCRIPCIONES}/inscripciones`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
+    body: JSON.stringify(data),
   });
+}
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Error al enviar la inscripción.");
-  }
-  return data;
+/**
+ * Lista inscripciones, opcionalmente filtrando por estado.
+ */
+export async function listInscripciones(status?: string): Promise<InscripcionDTO[]> {
+  if (!API_INSCRIPCIONES) throw new Error('API_INSCRIPCIONES no configurada');
+  const url = status ? `${API_INSCRIPCIONES}/inscripciones?status=${status}` : `${API_INSCRIPCIONES}/inscripciones`;
+  return request(url);
+}
+
+/**
+ * Aprueba una inscripción: cambia estado y crea usuario.
+ */
+export async function approveInscripcion(id: string): Promise<{ success: boolean; message?: string }> {
+  if (!API_INSCRIPCIONES) throw new Error('API_INSCRIPCIONES no configurada');
+  return request(`${API_INSCRIPCIONES}/inscripciones/${id}/approve`, { method: 'POST' });
+}
+
+/**
+ * Rechaza una inscripción (marca estado 'rejected').
+ */
+export async function rejectInscripcion(id: string): Promise<{ success: boolean; message?: string }> {
+  if (!API_INSCRIPCIONES) throw new Error('API_INSCRIPCIONES no configurada');
+  return request(`${API_INSCRIPCIONES}/inscripciones/${id}/reject`, { method: 'POST' });
 }

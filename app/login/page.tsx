@@ -1,4 +1,4 @@
-"use client" // no tocar esta linea, funcionamiento de pag interactiva
+"use client" // no tocar esta línea: habilita Hook y estado cliente
 
 import { useState } from "react"
 import Link from "next/link"
@@ -29,23 +29,28 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      const response = await loginUser(email, password)
-      if (response.token) {
-        localStorage.setItem('authToken', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
-      }
-      const userRole = response.user.rol.toLowerCase()
-      if (userRole === "administrador") {
-        router.push("/dashboard/admin")
-      } else if (userRole === "maestra" || userRole === "instructor") {
-        router.push("/dashboard/instructor")
-      } else if (userRole === "alumno") {
-        router.push("/dashboard/alumno")
+      const { token, user } = await loginUser(email, password)
+
+      // 1) Guarda token y usuario
+      localStorage.setItem('authToken', token)
+      localStorage.setItem('user', JSON.stringify(user))
+
+      // 2) Crea cookie para el middleware
+      document.cookie = `user_session=${token}; path=/; max-age=${60*60*24}`
+
+      // 3) Redirige según rol
+      const role = user.rol.toLowerCase()
+      if (role === 'administrador') {
+        router.push('/dashboard/admin')
+      } else if (role === 'maestra' || role === 'instructor') {
+        router.push('/dashboard/instructor')
+      } else if (role === 'alumno') {
+        router.push('/dashboard/alumno')
       } else {
         setError("Rol de usuario no reconocido.")
       }
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message || 'Error al iniciar sesión.')
     } finally {
       setIsLoading(false)
     }
@@ -63,7 +68,6 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-700">Correo Electrónico</Label>
               <div className="relative">
@@ -80,7 +84,7 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            {/* Password */}
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-gray-700">Contraseña</Label>
@@ -109,9 +113,9 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            {/* Error */}
+
             {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-            {/* Submit Button */}
+
             <Button
               type="submit"
               disabled={isLoading}
@@ -123,13 +127,11 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="text-center pt-6">
-          <div className="w-full">
-            <div className="text-sm text-gray-600">
-              ¿No tienes una cuenta?{" "}
-              <Link href="/registro" className="text-violet hover:text-violet/80 font-semibold">
-                Regístrate aquí
-              </Link>
-            </div>
+          <div className="text-sm text-gray-600">
+            ¿No tienes una cuenta?{' '}
+            <Link href="/registro" className="text-violet hover:text-violet/80 font-semibold">
+              Regístrate aquí
+            </Link>
           </div>
         </CardFooter>
       </Card>

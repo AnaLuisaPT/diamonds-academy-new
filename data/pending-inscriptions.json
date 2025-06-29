@@ -1,17 +1,17 @@
 [
   {
-    "id": 1750660333837,
-    "status": "pending",
-    "submittedAt": "2025-06-23T06:32:13.837Z",
-    "studentName": "Ana Luisa Panes Tessini",
-    "studentAge": "18+",
-    "parentName": "Ana Panes Tessini",
-    "email": "ana.panes.tessini.ap@gmail.com",
-    "phone": "+56945421629",
-    "classType": "ballet-adulto",
+    "studentName": "Antonia Ceron",
+    "studentAge": "8-12",
+    "parentName": "Padre",
+    "email": "aa.gonzalezv96@gmail.com",
+    "phone": "9 7274 0404",
+    "classType": "ballet-formativo",
     "experience": "avanzado",
-    "schedule": "flexible",
+    "schedule": "",
     "medicalInfo": "",
-    "comments": ""
+    "comments": "",
+    "id": 1751163496842,
+    "status": "pending",
+    "submittedAt": "2025-06-29T02:18:16.842Z"
   }
 ]

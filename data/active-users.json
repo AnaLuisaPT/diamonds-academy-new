@@ -14,11 +14,70 @@
     "medicalInfo": "iajsdhsauhdkhskahdkjahsd",
     "comments": "asjdsahkdhsakdhksahkjdahs"
   },
-
   {
     "email": "admin@diamante.com",
     "password": "password123",
     "name": "Administrador",
     "role": "admin"
+  },
+  {
+    "studentName": "Gabriela Figueroa",
+    "studentAge": "5-7",
+    "parentName": "Padre",
+    "email": "aa@aa.com",
+    "phone": "9 7274 0404",
+    "classType": "ballet-formativo",
+    "experience": "principiante",
+    "schedule": "flexible",
+    "medicalInfo": "nada diagnosticado",
+    "comments": "",
+    "id": 1751158430534,
+    "status": "active",
+    "submittedAt": "2025-06-29T00:53:50.534Z"
+  },
+  {
+    "studentName": "Antonia Ceron",
+    "studentAge": "8-12",
+    "parentName": "Padre",
+    "email": "aa.gonzalezv96@gmail.com",
+    "phone": "9 7274 0404",
+    "classType": "ballet-juvenil",
+    "experience": "intermedio",
+    "schedule": "flexible",
+    "medicalInfo": "ninguna informacion relevante",
+    "comments": "",
+    "id": 1751161753647,
+    "status": "active",
+    "submittedAt": "2025-06-29T01:49:13.647Z"
+  },
+  {
+    "studentName": "Antonia Ceron",
+    "studentAge": "8-12",
+    "parentName": "Padre",
+    "email": "aa.gonzalezv96@gmail.com",
+    "phone": "9 7274 0404",
+    "classType": "ballet-formativo",
+    "experience": "avanzado",
+    "schedule": "sabados",
+    "medicalInfo": "nada",
+    "comments": "",
+    "id": 1751162154710,
+    "status": "active",
+    "submittedAt": "2025-06-29T01:55:54.710Z"
+  },
+  {
+    "studentName": "Antonia Ceron",
+    "studentAge": "13-17",
+    "parentName": "Padre",
+    "email": "aa.gonzalezv96@gmail.com",
+    "phone": "9 7274 0404",
+    "classType": "ballet-juvenil",
+    "experience": "avanzado",
+    "schedule": "flexible",
+    "medicalInfo": "",
+    "comments": "",
+    "id": 1751162576493,
+    "status": "active",
+    "submittedAt": "2025-06-29T02:02:56.493Z"
   }
 ]
