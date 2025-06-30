@@ -1,40 +1,62 @@
-import { listInscripciones, InscripcionDTO } from '@/lib/api'
-import DashboardNav from '@/components/admin/DashboardNav'
-import PendingTab from '@/components/admin/PendingTab'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { listInscripciones, InscripcionDTO } from "@/lib/api";
+import DashboardNav from "@/components/admin/DashboardNav";
+import PendingTab from "@/components/admin/PendingTab";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface AdminPageProps { searchParams: Promise<{ tab?: string }> }
+interface AdminPageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
-  const { tab } = await searchParams
-  const currentTab = tab ?? 'pending'
+  const { tab } = await searchParams;
+  const currentTab = tab ?? "pending";
 
-  let pendingInscriptions: InscripcionDTO[] = []
-  try {
-    pendingInscriptions = await listInscripciones('pending')
-  } catch {
-    pendingInscriptions = []
+  let pendingInscriptions: InscripcionDTO[] = [];
+  if (currentTab === "pending") {
+    try {
+      pendingInscriptions = await listInscripciones("pending");
+    } catch {
+      pendingInscriptions = [];
+    }
   }
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Panel de Administrador</h1>
-        <DashboardNav activeTab={currentTab} pendingCount={pendingInscriptions.length} />
+        <DashboardNav
+          activeTab={currentTab}
+          pendingCount={pendingInscriptions.length}
+        />
+
         <div className="mt-8">
-          {currentTab === 'pending' && <PendingTab inscriptions={pendingInscriptions} />}
-          {currentTab === 'users' && (
-            <Card><CardHeader><CardTitle>Usuarios Activos</CardTitle></CardHeader>
-                  <CardContent><p>Implementa tu listado de usuarios aquí</p></CardContent>
+          {currentTab === "pending" && (
+            <PendingTab inscriptions={pendingInscriptions} />
+          )}
+
+          {currentTab === "users" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Usuarios Activos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Implementa tu listado de usuarios aquí</p>
+              </CardContent>
             </Card>
           )}
-          {currentTab === 'overview' && (
-            <Card><CardHeader><CardTitle>Resumen General</CardTitle></CardHeader>
-                  <CardContent><p>Bienvenido al panel de administrador.</p></CardContent>
+
+          {currentTab === "overview" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumen General</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Bienvenido al panel de administrador.</p>
+              </CardContent>
             </Card>
           )}
         </div>
       </main>
     </div>
-  )
+  );
 }

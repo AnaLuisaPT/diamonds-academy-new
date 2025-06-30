@@ -101,24 +101,40 @@ export interface InscripcionDTO {
   submittedAt?: string;
 }
 
-export async function submitInscription(data: Omit<InscripcionDTO, 'id' | 'status' | 'submittedAt'>): Promise<{ success: boolean; message?: string }> {
-  return request(`${API_INSCRIPCIONES}/inscripciones`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+export async function submitInscripcion(
+  data: Omit<InscripcionDTO, "id" | "status" | "submittedAt">
+): Promise<{ success: boolean; message?: string }> {
+  return request<{ success: boolean; message?: string }>(
+    `${API_INSCRIPCIONES}/inscripciones`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
 }
 
-export async function listInscripciones(status?: string): Promise<InscripcionDTO[]> {
+export async function listInscripciones(
+  status?: string
+): Promise<InscripcionDTO[]> {
   const url = status
     ? `${API_INSCRIPCIONES}/inscripciones?status=${status}`
     : `${API_INSCRIPCIONES}/inscripciones`;
   return request<InscripcionDTO[]>(url);
 }
 
-export async function approveInscripcion(id: string): Promise<{ success: boolean; message?: string }> {
-  return request(`${API_INSCRIPCIONES}/inscripciones/${id}/approve`, { method: 'POST' });
+export async function approveInscripcion(
+  id: string
+): Promise<{ success: boolean; message?: string }> {
+  return request(`${API_INSCRIPCIONES}/inscripciones/${id}/approve`, {
+    method: "POST",
+  });
 }
 
-export async function rejectInscripcion(id: string): Promise<{ success: boolean; message?: string }> {
-  return request(`${API_INSCRIPCIONES}/inscripciones/${id}/reject`, { method: 'POST' });
+export async function rejectInscripcion(
+  id: string
+): Promise<{ success: boolean; message?: string }> {
+  return request<{ success: boolean; message?: string }>(
+    `${API_INSCRIPCIONES}/inscripciones/${id}/reject`,
+    { method: "DELETE" }
+  );
 }

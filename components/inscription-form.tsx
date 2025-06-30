@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { submitInscription } from "@/app/actions/inscription";
+import { submitInscripcion } from "@/lib/api";           // ← ruta y nombre corregidos
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,15 +49,18 @@ export default function InscriptionForm() {
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSelectChange = (name: keyof FormData, value: string) =>
+  const handleSelectChange = (name: keyof FormData, value: string) => {
     setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    toast.promise(submitInscription(formData), {
+    await toast.promise(submitInscripcion(formData), {
       loading: "Enviando inscripción...",
       success: () => {
         setSubmitted(true);
@@ -113,7 +116,7 @@ export default function InscriptionForm() {
               value={formData.studentAge}
               onValueChange={(v) => handleSelectChange("studentAge", v)}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger id="studentAge" className="bg-white">
                 <SelectValue placeholder="Selecciona la edad" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -185,7 +188,7 @@ export default function InscriptionForm() {
               value={formData.classType}
               onValueChange={(v) => handleSelectChange("classType", v)}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger id="classType" className="bg-white">
                 <SelectValue placeholder="Selecciona una clase" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -193,16 +196,16 @@ export default function InscriptionForm() {
                   Baby Ballet (2-4 años)
                 </SelectItem>
                 <SelectItem value="ballet-infantil">
-                  Ballet Clásico Infantil (5-7)
+                  Ballet Clásico Infantil (5-7 años)
                 </SelectItem>
                 <SelectItem value="ballet-formativo">
-                  Ballet Formativo (8-12)
+                  Ballet Formativo (8-12 años)
                 </SelectItem>
                 <SelectItem value="ballet-juvenil">
-                  Ballet Juvenil (13-17)
+                  Ballet Juvenil (13-17 años)
                 </SelectItem>
                 <SelectItem value="ballet-adulto">
-                  Ballet Adulto (18+)
+                  Ballet Adulto (18+ años)
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -215,7 +218,7 @@ export default function InscriptionForm() {
               value={formData.experience}
               onValueChange={(v) => handleSelectChange("experience", v)}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger id="experience" className="bg-white">
                 <SelectValue placeholder="Selecciona tu nivel" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -243,7 +246,7 @@ export default function InscriptionForm() {
             value={formData.schedule}
             onValueChange={(v) => handleSelectChange("schedule", v)}
           >
-            <SelectTrigger className="bg-white">
+            <SelectTrigger id="schedule" className="bg-white">
               <SelectValue placeholder="Selecciona tu preferencia" />
             </SelectTrigger>
             <SelectContent className="bg-white">
