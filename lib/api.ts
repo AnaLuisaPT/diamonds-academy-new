@@ -180,3 +180,15 @@ export async function rejectInscripcion(
   );
 }
 
+export async function updateInscripcion(
+  id: string,
+  data: Partial<InscripcionDTO>
+): Promise<{ success: boolean; message?: string }> {
+  return request<{ success: boolean; message?: string }>(
+    `${API_INSCRIPCIONES}/inscripciones/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }
+  );
+}

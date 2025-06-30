@@ -77,13 +77,25 @@ export default function UsersTab() {
     }
   };
 
+  // Fetch users and update state
+  const fetchUsers = async () => {
+    try {
+      const data = await listUsers();
+      setAllUsers(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleSave = async () => {
     if (!selectedUser) return;
     setLoading(true);
     try {
+      // PUT to users table
       await updateUser(selectedUser.id, formData);
-      await listUsers().then((data) => setAllUsers(data));
+      await fetchUsers();
       setIsEditing(false);
+      setSelectedUser(null);
     } catch (e) {
       console.error(e);
     } finally {
