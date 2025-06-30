@@ -32,7 +32,10 @@ export interface LoginResponse {
   token: string;
   user: { id: string; nombre: string; email: string; rol: string };
 }
-export async function loginUser(email: string, password: string): Promise<LoginResponse> {
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<LoginResponse> {
   return request<LoginResponse>(`${API_USUARIOS}/login`, {
     method: 'POST',
     body: JSON.stringify({ email, password }),
@@ -40,6 +43,14 @@ export async function loginUser(email: string, password: string): Promise<LoginR
 }
 
 // ===== Usuarios =====
+export interface UserDTO {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+  telefono?: string;
+}
+
 export async function registerUser(data: {
   firstName: string;
   lastName: string;
@@ -47,7 +58,7 @@ export async function registerUser(data: {
   password: string;
   userType: string;
   phone?: string;
-}): Promise<{ id: string; nombre: string; email: string; rol: string }> {
+}): Promise<UserDTO> {
   const payload = {
     nombre: `${data.firstName} ${data.lastName}`,
     email: data.email,
@@ -55,13 +66,43 @@ export async function registerUser(data: {
     rol: data.userType,
     telefono: data.phone,
   };
-  return request(`${API_USUARIOS}/users`, {
+  return request<UserDTO>(`${API_USUARIOS}/users`, {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 }
-export async function getUserById(userId: string) {
-  return request(`${API_USUARIOS}/users/${userId}`);
+
+export async function getUserById(userId: string): Promise<UserDTO> {
+  return request<UserDTO>(`${API_USUARIOS}/users/${userId}`);
+}
+
+export async function listUsers(
+  params?: { search?: string; role?: string }
+): Promise<UserDTO[]> {
+  const qs = new URLSearchParams();
+  if (params?.search) qs.set('search', params.search);
+  if (params?.role) qs.set('role', params.role);
+  const query = qs.toString() ? `?${qs.toString()}` : '';
+  return request<UserDTO[]>(`${API_USUARIOS}/users${query}`);
+}
+
+export async function updateUser(
+  id: string,
+  data: Partial<Omit<UserDTO, 'id'>>
+): Promise<UserDTO> {
+  return request<UserDTO>(`${API_USUARIOS}/users/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUser(
+  id: string
+): Promise<{ success: boolean; message?: string }> {
+  return request<{ success: boolean; message?: string }>(
+    `${API_USUARIOS}/users/${id}`,
+    { method: 'DELETE' }
+  );
 }
 
 // ===== Niveles =====
@@ -138,3 +179,4 @@ export async function rejectInscripcion(
     { method: "DELETE" }
   );
 }
+

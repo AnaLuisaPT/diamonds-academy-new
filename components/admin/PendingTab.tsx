@@ -1,4 +1,3 @@
-// File: components/admin/PendingTab.tsx
 "use client";
 
 import { useState } from "react";

@@ -2,6 +2,7 @@ import { listInscripciones, InscripcionDTO } from "@/lib/api";
 import DashboardNav from "@/components/admin/DashboardNav";
 import PendingTab from "@/components/admin/PendingTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import UsersTab from "@/components/admin/UsersTab";
 
 interface AdminPageProps {
   searchParams: Promise<{ tab?: string }>;
@@ -35,14 +36,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           )}
 
           {currentTab === "users" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Usuarios Activos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Implementa tu listado de usuarios aquí</p>
-              </CardContent>
-            </Card>
+            <UsersTab />
           )}
 
           {currentTab === "overview" && (

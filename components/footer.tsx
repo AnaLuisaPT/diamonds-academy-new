@@ -49,7 +49,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <i className="fas fa-envelope w-5 mr-3 text-turquoise"></i>
-                <a href="mailto:diamondsacademy.cl@omail.com" className="hover:text-white transition-colors break-all">diamondsacademy.cl@omail.com</a>
+                <a href="mailto:diamondsacademy.cl@omail.com" className="hover:text-white transition-colors break-all">diamondsacademy@gmail.com</a>
               </li>
             </ul>
           </div>
