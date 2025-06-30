@@ -48,7 +48,7 @@ export interface UserDTO {
   nombre: string;
   email: string;
   rol: string;
-  telefono?: string;
+  phone?: string;
 }
 
 export async function registerUser(data: {
@@ -64,7 +64,7 @@ export async function registerUser(data: {
     email: data.email,
     password: data.password,
     rol: data.userType,
-    telefono: data.phone,
+    phone: data.phone,
   };
   return request<UserDTO>(`${API_USUARIOS}/users`, {
     method: 'POST',
@@ -106,6 +106,21 @@ export async function deleteUser(
 }
 
 // ===== Niveles =====
+export interface NivelDTO {
+  id: string;
+  nombre: string;
+  rango_edad: string;
+  horario: string;
+  tipo_nivel_id: string;
+  instructor_id: string;
+  cupos_maximos: number;
+  cupos_actuales: number;
+}
+
+export async function listNiveles(): Promise<NivelDTO[]> {
+  return request<NivelDTO[]>(`${API_NIVELES}/niveles`);
+}
+
 export async function getNivelById(nivelId: string) {
   return request(`${API_NIVELES}/niveles/${nivelId}`);
 }

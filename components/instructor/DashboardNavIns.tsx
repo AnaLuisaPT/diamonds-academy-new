@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, ClipboardCheck, FileText, Star } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
 
 interface DashboardNavInstructorProps {
   activeTab: string;
@@ -12,29 +11,17 @@ interface DashboardNavInstructorProps {
 }
 
 export default function DashboardNavInstructor({ activeTab, onTabChange }: DashboardNavInstructorProps) {
-  const { user, logout, loading } = useAuth();
-  const router = useRouter();
-
-  // Si no hay usuario y ya cargó, redirige al login
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return null;
-  }
+  const { user, logout } = useAuth();
 
   return (
-    <header className="bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-10">
+    <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <GraduationCap className="w-8 h-8 text-violet" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Panel de Instructor</h1>
             <p className="text-gray-600 capitalize">
-              {user.rol}: {user.nombre}
+              {user?.rol || 'Instructor'}: {user?.nombre || 'Usuario'}
             </p>
           </div>
         </div>
