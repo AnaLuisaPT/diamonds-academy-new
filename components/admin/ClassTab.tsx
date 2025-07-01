@@ -267,7 +267,7 @@ export default function ClassTab() {
             >
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button className="bg-violet-600 text-white hover:bg-violet-700" onClick={handleSave} disabled={saving}>
               {saving ? "Guardando..." : "Guardar"}
             </Button>
           </DialogFooter>

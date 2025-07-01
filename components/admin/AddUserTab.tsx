@@ -175,7 +175,7 @@ export default function AddUserTab() {
         </div>
       </div>
 
-      <Button type="submit" disabled={isLoading} className="w-full">
+      <Button type="submit" disabled={isLoading} className="w-full bg-violet-600 text-white hover:bg-violet-700">
         {isLoading ? "Creando..." : "Crear Usuario"}
       </Button>
     </form>

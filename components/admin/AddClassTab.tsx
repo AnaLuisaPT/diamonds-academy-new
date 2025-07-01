@@ -141,7 +141,7 @@ export default function AddClassTab() {
           className="mt-1 bg-white"
         />
       </div>
-      <Button
+      <Button className="bg-violet-600 text-white hover:bg-violet-700"
         onClick={handleSave}
         disabled={loading}
       >

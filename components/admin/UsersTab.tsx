@@ -205,10 +205,11 @@ export default function UsersTab() {
                       </Select>
                     </td>
                     <td className="px-4 py-2 flex gap-2">
-                      <Button size="sm" onClick={() => openEdit(u.id)}>
+                      <Button className="bg-violet-600 text-white hover:bg-violet-700" size="sm" onClick={() => openEdit(u.id)}>
                         Editar
                       </Button>
-                      <Button
+                      <Button 
+                        className="bg-red-600 text-white hover:bg-red-700"
                         size="sm"
                         variant="destructive"
                         onClick={() => handleDelete(u.id)}
@@ -341,7 +342,7 @@ export default function UsersTab() {
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>Guardar</Button>
+            <Button className="bg-violet-600 text-white hover:bg-violet-700" onClick={handleSave}>Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
