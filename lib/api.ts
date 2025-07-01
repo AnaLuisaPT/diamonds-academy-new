@@ -102,6 +102,30 @@ export async function deleteUser(
   );
 }
 
+// Asignar un nivel a un alumno
+export async function asignarNivel(
+  userId: string,
+  nivelId: string
+): Promise<{ success: boolean; message?: string }> {
+  return request<{ success: boolean; message?: string }>(
+    `${API_USUARIOS}/users/${userId}/nivel`,
+    {
+      method: "POST",
+      body: JSON.stringify({ nivel_id: nivelId }),
+    }
+  );
+}
+
+// Listar alumnos por nivel (opcional, utilidad futura)
+export async function listAlumnosPorNivel(
+  nivelId: string
+): Promise<UserDTO[]> {
+  const qs = new URLSearchParams();
+  qs.set("role", "alumno");
+  qs.set("nivel", nivelId);
+  return request<UserDTO[]>(`${API_USUARIOS}/users?${qs.toString()}`);
+}
+
 // ===== Niveles =====
 export interface NivelDTO {
   id: string;

@@ -18,7 +18,14 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { listUsers, deleteUser, updateUser, getUserById } from "@/lib/api";
+import {
+  listUsers,
+  deleteUser,
+  updateUser,
+  getUserById,
+  listNiveles,
+  asignarNivel,
+} from "@/lib/api";
 
 interface UserDTO {
   id: string;
@@ -33,6 +40,7 @@ interface UserDTO {
   apoderado?: string;
   comentarios?: string;
   info_medica?: string;
+  nivel_actual_id?: string;
 }
 
 export default function UsersTab() {
@@ -43,13 +51,24 @@ export default function UsersTab() {
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<UserDTO>>({});
+  const [niveles, setNiveles] = useState<{ id: string; nombre: string }[]>([]);
 
+  // Fetch users and levels
   useEffect(() => {
-    setLoading(true);
-    listUsers()
-      .then((data) => setAllUsers(data))
-      .catch((e) => console.error(e))
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const users = await listUsers();
+        setAllUsers(users);
+        const lv = await listNiveles();
+        setNiveles(lv.map(n => ({ id: n.id, nombre: n.nombre })));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const filteredUsers = useMemo(() => {
@@ -77,7 +96,6 @@ export default function UsersTab() {
     }
   };
 
-  // Fetch users and update state
   const fetchUsers = async () => {
     try {
       const data = await listUsers();
@@ -91,11 +109,22 @@ export default function UsersTab() {
     if (!selectedUser) return;
     setLoading(true);
     try {
-      // PUT to users table
       await updateUser(selectedUser.id, formData);
       await fetchUsers();
       setIsEditing(false);
       setSelectedUser(null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAssignLevel = async (userId: string, nivelId: string) => {
+    setLoading(true);
+    try {
+      await asignarNivel(userId, nivelId);
+      await fetchUsers();
     } catch (e) {
       console.error(e);
     } finally {
@@ -154,7 +183,7 @@ export default function UsersTab() {
                 <th className="px-4 py-2 text-left">Nombre</th>
                 <th className="px-4 py-2 text-left">Email</th>
                 <th className="px-4 py-2 text-left">Rol</th>
-                <th className="px-4 py-2 text-left">Teléfono</th>
+                <th className="px-4 py-2 text-left">Nivel</th>
                 <th className="px-4 py-2 text-left">Acciones</th>
               </tr>
             </thead>
@@ -165,7 +194,21 @@ export default function UsersTab() {
                     <td className="px-4 py-2">{u.nombre}</td>
                     <td className="px-4 py-2 break-words">{u.email}</td>
                     <td className="px-4 py-2 capitalize">{u.rol}</td>
-                    <td className="px-4 py-2">{u.phone || '-'}</td>
+                    <td className="px-4 py-2">
+                      <Select
+                        value={u.nivel_actual_id || ""}
+                        onValueChange={(v) => handleAssignLevel(u.id, v)}
+                      >
+                        <SelectTrigger className="bg-white w-32">
+                          <SelectValue placeholder="Nivel" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {niveles.map((n) => (
+                            <SelectItem key={n.id} value={n.id}>{n.nombre}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
                     <td className="px-4 py-2 flex flex-wrap gap-2">
                       <Button
                         size="sm"
