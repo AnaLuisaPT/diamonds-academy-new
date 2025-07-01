@@ -1,8 +1,4 @@
-/**
- * lib/api.ts
- * Cliente HTTP para todos los módulos de la academia.
- * Usa variables de entorno definidas en .env.local para las URLs.
- */
+
 
 const API_USUARIOS       = process.env.NEXT_PUBLIC_API_USUARIOS_URL!;
 const API_ROLES          = process.env.NEXT_PUBLIC_API_ROLES_URL!;
@@ -15,6 +11,7 @@ const API_MATERIAL       = process.env.NEXT_PUBLIC_API_MATERIAL_URL!;
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',             // incluir cookies (user_session)
     ...options,
   });
   const payload = await res.json().catch(() => ({}));
@@ -48,7 +45,7 @@ export interface UserDTO {
   nombre: string;
   email: string;
   rol: string;
-  phone?: string;
+  telefono?: string;
 }
 
 export async function registerUser(data: {
@@ -64,7 +61,7 @@ export async function registerUser(data: {
     email: data.email,
     password: data.password,
     rol: data.userType,
-    phone: data.phone,
+    telefono: data.phone,       // usar 'telefono' que espera el backend
   };
   return request<UserDTO>(`${API_USUARIOS}/users`, {
     method: 'POST',
@@ -122,7 +119,7 @@ export async function listNiveles(): Promise<NivelDTO[]> {
 }
 
 export async function getNivelById(nivelId: string) {
-  return request(`${API_NIVELES}/niveles/${nivelId}`);
+  return request<NivelDTO>(`${API_NIVELES}/niveles/${nivelId}`);
 }
 
 // ===== Asistencia =====

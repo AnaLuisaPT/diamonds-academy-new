@@ -15,7 +15,7 @@ export function OverviewTab({ classes, students }: OverviewTabProps) {
   ).toFixed(1);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>

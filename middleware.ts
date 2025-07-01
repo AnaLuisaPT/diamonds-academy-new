@@ -4,30 +4,34 @@ import type { NextRequest } from 'next/server'
 const SESSION_COOKIE_NAME = 'user_session';
 
 export function middleware(request: NextRequest) {
-  // 1. Obtenemos la cookie de sesión de la petición
-  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
+  const { pathname } = request.nextUrl;
+  const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  // 2. Si el usuario intenta acceder a cualquier ruta del dashboard...
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    // ...y NO tiene una cookie de sesión...
-    if (!sessionCookie) {
-      // ...lo redirigimos a la página de login.
-      return NextResponse.redirect(new URL('/login', request.url));
+  // 1. Proteger rutas bajo /dashboard
+  if (pathname.startsWith('/dashboard')) {
+    // Si no hay sesión, redirigir a login
+    if (!session) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login';
+      return NextResponse.redirect(loginUrl);
     }
   }
 
-  // 3. Si el usuario está logueado e intenta ir a /login, lo redirigimos al dashboard
-  if (request.nextUrl.pathname.startsWith('/login')) {
-    if (sessionCookie) {
-        return NextResponse.redirect(new URL('/dashboard/admin', request.url));
+  // 2. Evitar que usuarios logueados vean /login
+  if (pathname === '/login') {
+    if (session) {
+      // Redirigir según rol sacado de cookie (decoded en cliente) o default admin
+      // Para simplificar, enviamos a admin; el cliente luego redirigirá al dashboard correcto
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = '/dashboard/admin';
+      return NextResponse.redirect(dashboardUrl);
     }
   }
 
-  // 4. Si todo está en orden, dejamos que la petición continúe.
+  // 3. Miembros públicos (home, registro, assets) siguen igual
   return NextResponse.next();
 }
 
-// Especificamos qué rutas queremos que este "guardia" proteja.
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
-}
+  matcher: ['/', '/login', '/registro', '/dashboard/:path*'],
+};

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { listUsers, listNiveles } from "@/lib/api";
 import DashboardNavInstructor from "@/components/instructor/DashboardNavIns";
@@ -11,14 +12,22 @@ import { GradesTab } from "@/components/instructor/GradesTab";
 
 export default function InstructorDashboard() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [students, setStudents] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Carga datos una vez que usuario se conoce
+  // Redirigir al login si no está autenticado
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && !user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
+
+  // Carga datos una vez usuario existe
+  useEffect(() => {
+    if (!authLoading && user) {
       (async () => {
         setLoading(true);
         try {
@@ -33,31 +42,37 @@ export default function InstructorDashboard() {
         }
       })();
     }
-  }, [authLoading]);
+  }, [authLoading, user]);
 
+  // Mientras carga o redirige, no renderiza contenido
+  if (authLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-16"> {/* pt-16 para compensar navbar fijo */}
       {/* Barra de navegación */}
       <DashboardNavInstructor
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         {loading ? (
-          <p>Cargando datos...</p>
+          <p className="text-center py-8">Cargando datos...</p>
         ) : (
-          <>
+          <div className="space-y-6">
             {activeTab === "overview" && (
               <OverviewTab classes={classes} students={students} />
             )}
             {activeTab === "attendance" && (
               <AttendanceTab classes={classes} students={students} />
             )}
-            {activeTab === "materials" && <MaterialsTab classes={classes} />}
-            {activeTab === "grades" && <GradesTab students={students} />}
-          </>
+            {activeTab === "materials" && (
+              <MaterialsTab classes={classes} />
+            )}
+            {activeTab === "grades" && (
+              <GradesTab students={students} />
+            )}
+          </div>
         )}
       </div>
     </div>

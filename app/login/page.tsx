@@ -1,60 +1,55 @@
-"use client" // no tocar esta línea: habilita Hook y estado cliente
+"use client"; // no tocar esta línea: habilita Hook y estado cliente
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react"
-import { loginUser } from "@/lib/api"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (!email || !password) {
-      setError("El correo y la contraseña son requeridos.")
-      return
+      setError("El correo y la contraseña son requeridos.");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const { token, user } = await loginUser(email, password)
+      await login(email, password);
 
-      // 1) Guarda token y usuario
-      localStorage.setItem('authToken', token)
-      localStorage.setItem('user', JSON.stringify(user))
+      // Tras login, el contexto y la cookie ya están establecidos
+      // Redirige según rol almacenado en localStorage
+      const stored = localStorage.getItem("authUser");
+      const user = stored ? JSON.parse(stored) : null;
+      if (!user) throw new Error("No se pudo cargar usuario.");
 
-      // 2) Crea cookie para el middleware
-      document.cookie = `user_session=${token}; path=/; max-age=${60*60*24}`
+      const role = user.rol.toLowerCase();
+      if (role === "administrador") router.push("/dashboard/admin");
+      else if (role === "instructor" || role === "maestra") router.push("/dashboard/instructor");
+      else if (role === "alumno") router.push("/dashboard/alumno");
+      else setError("Rol de usuario no reconocido.");
 
-      // 3) Redirige según rol
-      const role = user.rol.toLowerCase()
-      if (role === 'administrador') {
-        router.push('/dashboard/admin')
-      } else if (role === 'maestra' || role === 'instructor') {
-        router.push('/dashboard/instructor')
-      } else if (role === 'alumno') {
-        router.push('/dashboard/alumno')
-      } else {
-        setError("Rol de usuario no reconocido.")
-      }
     } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión.')
+      setError(err.message || "Error al iniciar sesión.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg-light pt-20 px-4">
@@ -136,5 +131,5 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

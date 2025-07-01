@@ -1,7 +1,7 @@
-// app/context/AuthContext.tsx
 "use client";
 
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import { loginUser as apiLoginUser } from "@/lib/api";
 
 interface User {
   id: string;
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Aquí podrías cargar un token de localStorage y validar sesión
+  // Al inicio, cargo user desde localStorage
   useEffect(() => {
     const stored = localStorage.getItem("authUser");
     if (stored) {
@@ -33,14 +33,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Lógica real de login: llamar a tu API y obtener user+token
-    // Por ahora simulamos:
-    const fakeUser: User = { id: "123", nombre: "Demo", email, rol: "admin" };
-    localStorage.setItem("authUser", JSON.stringify(fakeUser));
-    setUser(fakeUser);
+    setLoading(true);
+    try {
+      // Llamada a tu API, que además del JSON de respuesta
+      // devuelve la cookie HttpOnly `user_session`
+      const { user: loggedUser } = await apiLoginUser(email, password);
+      // Guardar el usuario en localStorage (el token ya vino en cookie)
+      localStorage.setItem("authUser", JSON.stringify(loggedUser));
+      setUser(loggedUser);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
+    // Solo eliminamos el usuario del cliente; la cookie HttpOnly expirará o la limpiará tu backend
     localStorage.removeItem("authUser");
     setUser(null);
   };
