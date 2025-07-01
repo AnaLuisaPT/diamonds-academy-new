@@ -25,6 +25,7 @@ import {
   getUserById,
   listNiveles,
   asignarNivel,
+  NivelDTO,
 } from "@/lib/api";
 
 interface UserDTO {
@@ -45,7 +46,7 @@ interface UserDTO {
 
 export default function UsersTab() {
   const [allUsers, setAllUsers] = useState<UserDTO[]>([]);
-  const [niveles, setNiveles] = useState<{ id: string; nombre: string }[]>([]);
+  const [niveles, setNiveles] = useState<NivelDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -63,7 +64,8 @@ export default function UsersTab() {
           listNiveles(),
         ]);
         setAllUsers(users);
-        setNiveles(lv.map(n => ({ id: n.id, nombre: n.nombre })));
+        // 2) Guarda el array completo de NivelDTO
+        setNiveles(lv);
       } catch (e) {
         console.error(e);
       } finally {
@@ -79,7 +81,7 @@ export default function UsersTab() {
       return (
         matchesRole &&
         (u.nombre.toLowerCase().includes(term) ||
-         u.email.toLowerCase().includes(term))
+          u.email.toLowerCase().includes(term))
       );
     });
   }, [allUsers, search, roleFilter]);
@@ -121,8 +123,16 @@ export default function UsersTab() {
   const handleAssignLevel = async (userId: string, nivelId: string) => {
     setLoading(true);
     try {
-      // Llamamos sólo al endpoint especializado:
+      // 2.1 Asignar nivel_actual_id
       await asignarNivel(userId, nivelId);
+
+      // 2.2 Buscar el objeto NivelDTO para obtener su tipo_nivel_id
+      const nivel = niveles.find((n) => n.id === nivelId);
+      if (nivel) {
+        // 2.3 Actualizar el campo "clase" con el tipo_nivel_id
+        await updateUser(userId, { clase: nivel.tipo_nivel_id });
+      }
+
       await fetchUsers();
     } catch (e) {
       console.error(e);
@@ -176,7 +186,7 @@ export default function UsersTab() {
                 <th className="px-4 py-2 text-left">Nombre</th>
                 <th className="px-4 py-2 text-left">Email</th>
                 <th className="px-4 py-2 text-left">Rol</th>
-                <th className="px-4 py-2 text-left">Nivel</th>
+                <th className="px-4 py-2 text-left">Clase</th>
                 <th className="px-4 py-2 text-left">Acciones</th>
               </tr>
             </thead>
@@ -190,13 +200,19 @@ export default function UsersTab() {
                     <td className="px-4 py-2">
                       <Select
                         value={u.nivel_actual_id ?? ""}
-                        onValueChange={v => handleAssignLevel(u.id, v)}
+                        onValueChange={v => {
+                          setLoading(true);
+                          asignarNivel(u.id, v)
+                            .then(() => fetchUsers())
+                            .catch(console.error)
+                            .finally(() => setLoading(false));
+                        }}
                       >
                         <SelectTrigger className="bg-white w-32">
                           <SelectValue placeholder="Nivel" />
                         </SelectTrigger>
                         <SelectContent className="bg-white">
-                          {niveles.map(n => (
+                          {niveles.map((n) => (
                             <SelectItem key={n.id} value={n.id}>
                               {n.nombre}
                             </SelectItem>
@@ -208,7 +224,7 @@ export default function UsersTab() {
                       <Button className="bg-violet-600 text-white hover:bg-violet-700" size="sm" onClick={() => openEdit(u.id)}>
                         Editar
                       </Button>
-                      <Button 
+                      <Button
                         className="bg-red-600 text-white hover:bg-red-700"
                         size="sm"
                         variant="destructive"
@@ -279,12 +295,22 @@ export default function UsersTab() {
                   />
                 </label>
                 <label className="block text-sm font-medium text-gray-700">
-                  Clase
-                  <Input
-                    className="bg-white mt-1"
-                    value={formData.clase || ''}
-                    onChange={(e) => setFormData({ ...formData, clase: e.target.value })}
-                  />
+                  Clase asignada
+                  <Select
+                    value={formData.nivel_actual_id || ''}
+                    onValueChange={(v) => setFormData({ ...formData, nivel_actual_id: v })}
+                  >
+                    <SelectTrigger className="mt-1 bg-white w-full">
+                      <SelectValue placeholder="Selecciona una clase" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {niveles.map(n => (
+                        <SelectItem key={n.id} value={n.id}>
+                          {n.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </label>
                 <label className="block text-sm font-medium text-gray-700">
                   Experiencia

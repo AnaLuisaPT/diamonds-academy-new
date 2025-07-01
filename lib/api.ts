@@ -46,6 +46,7 @@ export interface UserDTO {
   rol: string;
   telefono?: string;
   nivel_actual_id?: string;
+  clase?: string;
 }
 
 export async function registerUser(data: {
@@ -86,7 +87,7 @@ export async function listUsers(
 
 export async function updateUser(
   id: string,
-  data: Partial<Omit<UserDTO, 'id'>>
+  data: Partial<Omit<UserDTO, 'id'> & { clase?: string }>
 ): Promise<UserDTO> {
   return request<UserDTO>(`${API_USUARIOS}/users/${id}`, {
     method: 'PUT',
@@ -271,4 +272,22 @@ export async function updateInscripcion(
       body: JSON.stringify(data),
     }
   );
+}
+
+/** Lista sólo los niveles (clases) de un instructor */
+export async function listNivelesByInstructor(
+  instructorId: string
+): Promise<NivelDTO[]> {
+  const all = await listNiveles();
+  return all.filter((n) => n.instructor_id === instructorId);
+}
+
+/** Obtiene el promedio de calificaciones de un alumno */
+export async function getPromedioAlumno(
+  alumnoId: string
+): Promise<number> {
+  const califs = await getCalificacionesByAlumnoId(alumnoId);
+  if (!Array.isArray(califs) || califs.length === 0) return 0;
+  const sum = califs.reduce((acc, c) => acc + (c.valor || 0), 0);
+  return sum / califs.length;
 }

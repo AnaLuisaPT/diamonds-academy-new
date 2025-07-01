@@ -9,6 +9,7 @@ import { OverviewTab } from "@/components/instructor/OverviewTab";
 import { AttendanceTab } from "@/components/instructor/AttendanceTab";
 import { MaterialsTab } from "@/components/instructor/MaterialsTab";
 import { GradesTab } from "@/components/instructor/GradesTab";
+import ClassTab from "@/components/instructor/ClassTab";
 
 export default function InstructorDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -59,7 +60,7 @@ export default function InstructorDashboard() {
         {loading ? (
           <p className="text-center py-8">Cargando datos...</p>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 pt-24 max-w-7xl mx-auto px-4">
             {activeTab === "overview" && (
               <OverviewTab classes={classes} students={students} />
             )}
@@ -72,6 +73,7 @@ export default function InstructorDashboard() {
             {activeTab === "grades" && (
               <GradesTab students={students} />
             )}
+            {activeTab === "classes" && <ClassTab />}
           </div>
         )}
       </div>

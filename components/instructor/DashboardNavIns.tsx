@@ -65,6 +65,16 @@ export default function DashboardNavInstructor({ activeTab, onTabChange }: Dashb
             <Star className="w-4 h-4" />
             <span>Calificaciones</span>
           </Button>
+          <Button
+            variant={activeTab === "classes" ? "default" : "outline"}
+            onClick={() => onTabChange("classes")}
+            className="flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Mis Clases
+          </Button>
+
+
         </div>
       </nav>
     </header>
