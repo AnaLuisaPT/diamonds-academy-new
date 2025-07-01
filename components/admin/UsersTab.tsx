@@ -33,6 +33,7 @@ interface UserDTO {
   email: string;
   rol: string;
   phone?: string;
+  nivel_actual_id?: string;
   edad?: string;
   clase?: string;
   experiencia?: string;
@@ -40,47 +41,57 @@ interface UserDTO {
   apoderado?: string;
   comentarios?: string;
   info_medica?: string;
-  nivel_actual_id?: string;
 }
 
 export default function UsersTab() {
   const [allUsers, setAllUsers] = useState<UserDTO[]>([]);
+  const [niveles, setNiveles] = useState<{ id: string; nombre: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<UserDTO>>({});
-  const [niveles, setNiveles] = useState<{ id: string; nombre: string }[]>([]);
 
-  // Fetch users and levels
+  // Carga inicial de usuarios y niveles
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       setLoading(true);
       try {
-        const users = await listUsers();
+        const [users, lv] = await Promise.all([
+          listUsers(),
+          listNiveles(),
+        ]);
         setAllUsers(users);
-        const lv = await listNiveles();
         setNiveles(lv.map(n => ({ id: n.id, nombre: n.nombre })));
       } catch (e) {
         console.error(e);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, []);
 
   const filteredUsers = useMemo(() => {
-    return allUsers.filter((u) => {
+    return allUsers.filter(u => {
       const matchesRole = roleFilter === "all" || u.rol === roleFilter;
       const term = search.trim().toLowerCase();
-      const matchesSearch =
-        u.nombre.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term);
-      return matchesRole && matchesSearch;
+      return (
+        matchesRole &&
+        (u.nombre.toLowerCase().includes(term) ||
+         u.email.toLowerCase().includes(term))
+      );
     });
   }, [allUsers, search, roleFilter]);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await listUsers();
+      setAllUsers(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const openEdit = async (id: string) => {
     setLoading(true);
@@ -89,19 +100,8 @@ export default function UsersTab() {
       setSelectedUser(user);
       setFormData(user);
       setIsEditing(true);
-    } catch (e) {
-      console.error(e);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const data = await listUsers();
-      setAllUsers(data);
-    } catch (e) {
-      console.error(e);
     }
   };
 
@@ -113,8 +113,6 @@ export default function UsersTab() {
       await fetchUsers();
       setIsEditing(false);
       setSelectedUser(null);
-    } catch (e) {
-      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -123,6 +121,7 @@ export default function UsersTab() {
   const handleAssignLevel = async (userId: string, nivelId: string) => {
     setLoading(true);
     try {
+      // Llamamos sólo al endpoint especializado:
       await asignarNivel(userId, nivelId);
       await fetchUsers();
     } catch (e) {
@@ -133,33 +132,27 @@ export default function UsersTab() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("¿Eliminar este usuario?")) {
-      setLoading(true);
-      try {
-        await deleteUser(id);
-        setAllUsers((prev) => prev.filter((u) => u.id !== id));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+    if (!confirm("¿Eliminar este usuario?")) return;
+    setLoading(true);
+    try {
+      await deleteUser(id);
+      setAllUsers(prev => prev.filter(u => u.id !== id));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="p-4 space-y-6">
-      {/* Filtros */}
+      {/* filtros */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <Input
-          className="bg-white flex-1"
           placeholder="Buscar por nombre o email"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 bg-white"
         />
-        <Select
-          value={roleFilter}
-          onValueChange={(v) => setRoleFilter(v)}
-        >
+        <Select value={roleFilter} onValueChange={v => setRoleFilter(v)}>
           <SelectTrigger className="bg-white w-full sm:w-48">
             <SelectValue placeholder="Filtrar rol" />
           </SelectTrigger>
@@ -172,10 +165,10 @@ export default function UsersTab() {
         </Select>
       </div>
 
-      {/* Tabla responsiva */}
+      {/* tabla */}
       <div className="overflow-x-auto">
         {loading ? (
-          <p>Cargando usuarios...</p>
+          <p>Cargando usuarios…</p>
         ) : (
           <table className="w-full min-w-[600px] table-auto">
             <thead>
@@ -189,38 +182,35 @@ export default function UsersTab() {
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((u) => (
+                filteredUsers.map(u => (
                   <tr key={u.id} className="border-t">
                     <td className="px-4 py-2">{u.nombre}</td>
-                    <td className="px-4 py-2 break-words">{u.email}</td>
+                    <td className="px-4 py-2">{u.email}</td>
                     <td className="px-4 py-2 capitalize">{u.rol}</td>
                     <td className="px-4 py-2">
                       <Select
-                        value={u.nivel_actual_id || ""}
-                        onValueChange={(v) => handleAssignLevel(u.id, v)}
+                        value={u.nivel_actual_id ?? ""}
+                        onValueChange={v => handleAssignLevel(u.id, v)}
                       >
                         <SelectTrigger className="bg-white w-32">
                           <SelectValue placeholder="Nivel" />
                         </SelectTrigger>
                         <SelectContent className="bg-white">
-                          {niveles.map((n) => (
-                            <SelectItem key={n.id} value={n.id}>{n.nombre}</SelectItem>
+                          {niveles.map(n => (
+                            <SelectItem key={n.id} value={n.id}>
+                              {n.nombre}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </td>
-                    <td className="px-4 py-2 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        className="transition shadow-sm hover:shadow-md hover:bg-gray-100"
-                        onClick={() => openEdit(u.id)}
-                      >
+                    <td className="px-4 py-2 flex gap-2">
+                      <Button size="sm" onClick={() => openEdit(u.id)}>
                         Editar
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="bg-red-600 text-white hover:bg-red-700"
                         onClick={() => handleDelete(u.id)}
                       >
                         Eliminar
@@ -230,7 +220,7 @@ export default function UsersTab() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-500">
+                  <td colSpan={5} className="p-4 text-center text-gray-500">
                     No se encontraron usuarios.
                   </td>
                 </tr>
@@ -240,23 +230,26 @@ export default function UsersTab() {
         )}
       </div>
 
-      {/* Modal Edición */}
+      {/* modal edición */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
         <DialogContent className="bg-white max-w-md mx-auto w-full">
           <DialogHeader>
             <DialogTitle>Editar Usuario</DialogTitle>
-            <DialogDescription>Modifica los campos deseados.</DialogDescription>
+            <DialogDescription>
+              Modifica los campos deseados.
+            </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 mt-4">
             {selectedUser && (
               <>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium">
                   Nombre
                   <Input
-                    className="bg-white mt-1"
-                    value={formData.nombre || ''}
-                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    className="mt-1 bg-white"
+                    value={formData.nombre ?? ""}
+                    onChange={e =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
                   />
                 </label>
                 <label className="block text-sm font-medium text-gray-700">

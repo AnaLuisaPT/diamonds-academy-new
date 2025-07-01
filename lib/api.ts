@@ -1,5 +1,4 @@
-
-
+// lib/api.ts
 const API_USUARIOS       = process.env.NEXT_PUBLIC_API_USUARIOS_URL!;
 const API_ROLES          = process.env.NEXT_PUBLIC_API_ROLES_URL!;
 const API_INSCRIPCIONES  = process.env.NEXT_PUBLIC_API_INSCRIPCIONES_URL!;
@@ -11,7 +10,7 @@ const API_MATERIAL       = process.env.NEXT_PUBLIC_API_MATERIAL_URL!;
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',             // incluir cookies (user_session)
+    credentials: 'include',  // Incluye la cookie user_session
     ...options,
   });
   const payload = await res.json().catch(() => ({}));
@@ -46,6 +45,7 @@ export interface UserDTO {
   email: string;
   rol: string;
   telefono?: string;
+  nivel_actual_id?: string;
 }
 
 export async function registerUser(data: {
@@ -61,7 +61,7 @@ export async function registerUser(data: {
     email: data.email,
     password: data.password,
     rol: data.userType,
-    telefono: data.phone,       // usar 'telefono' que espera el backend
+    telefono: data.phone,  // coincide con el backend
   };
   return request<UserDTO>(`${API_USUARIOS}/users`, {
     method: 'POST',
@@ -74,11 +74,12 @@ export async function getUserById(userId: string): Promise<UserDTO> {
 }
 
 export async function listUsers(
-  params?: { search?: string; role?: string }
+  params?: { search?: string; role?: string; nivel?: string }
 ): Promise<UserDTO[]> {
   const qs = new URLSearchParams();
   if (params?.search) qs.set('search', params.search);
-  if (params?.role) qs.set('role', params.role);
+  if (params?.role)   qs.set('role', params.role);
+  if (params?.nivel)  qs.set('nivel', params.nivel);
   const query = qs.toString() ? `?${qs.toString()}` : '';
   return request<UserDTO[]>(`${API_USUARIOS}/users${query}`);
 }
@@ -102,10 +103,10 @@ export async function deleteUser(
   );
 }
 
-// Asignar un nivel a un alumno
+/** Asigna o quita un nivel a un usuario */
 export async function asignarNivel(
   userId: string,
-  nivelId: string
+  nivelId: string   // cadena vacía para desasignar
 ): Promise<{ success: boolean; message?: string }> {
   return request<{ success: boolean; message?: string }>(
     `${API_USUARIOS}/users/${userId}/nivel`,
@@ -114,16 +115,6 @@ export async function asignarNivel(
       body: JSON.stringify({ nivel_id: nivelId }),
     }
   );
-}
-
-// Listar alumnos por nivel (opcional, utilidad futura)
-export async function listAlumnosPorNivel(
-  nivelId: string
-): Promise<UserDTO[]> {
-  const qs = new URLSearchParams();
-  qs.set("role", "alumno");
-  qs.set("nivel", nivelId);
-  return request<UserDTO[]>(`${API_USUARIOS}/users?${qs.toString()}`);
 }
 
 // ===== Niveles =====
@@ -138,12 +129,65 @@ export interface NivelDTO {
   cupos_actuales: number;
 }
 
+/** Crea un nuevo nivel (clase) */
+export async function createNivel(data: {
+  nombre: string;
+  tipo_nivel_id: string;
+  instructor_id: string;
+  rango_edad: string;
+  horario: string;
+  cupos_maximos: number;
+}): Promise<NivelDTO> {
+  return request<NivelDTO>(`${API_NIVELES}/niveles`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Lista todos los niveles */
 export async function listNiveles(): Promise<NivelDTO[]> {
   return request<NivelDTO[]>(`${API_NIVELES}/niveles`);
 }
 
-export async function getNivelById(nivelId: string) {
+/** Obtiene un nivel por ID */
+export async function getNivelById(nivelId: string): Promise<NivelDTO> {
   return request<NivelDTO>(`${API_NIVELES}/niveles/${nivelId}`);
+}
+
+/** Actualiza un nivel (incluyendo cupos_actuales) */
+export async function updateNivel(
+  id: string,
+  data: Partial<Omit<NivelDTO, 'id'>>
+): Promise<NivelDTO> {
+  return request<NivelDTO>(`${API_NIVELES}/niveles/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Elimina un nivel */
+export async function deleteNivel(id: string): Promise<void> {
+  await request<void>(`${API_NIVELES}/niveles/${id}`, { method: 'DELETE' });
+}
+
+/** Todos los niveles de un tipo */
+export async function listNivelesByTipo(tipoId: string): Promise<NivelDTO[]> {
+  return request<NivelDTO[]>(`${API_NIVELES}/niveles/tipo/${tipoId}`);
+}
+
+/** Niveles disponibles (cupo) de un tipo */
+export async function listNivelesDisponibles(tipoId: string): Promise<NivelDTO[]> {
+  return request<NivelDTO[]>(
+    `${API_NIVELES}/niveles/tipo/${tipoId}/cupo`
+  );
+}
+
+/** Lista alumnos (rol=alumno) filtrando por nivel */
+export async function listAlumnosByNivel(
+  nivelId: string
+): Promise<UserDTO[]> {
+  const qs = new URLSearchParams({ role: "alumno", nivel: nivelId });
+  return request<UserDTO[]>(`${API_USUARIOS}/users?${qs.toString()}`);
 }
 
 // ===== Asistencia =====

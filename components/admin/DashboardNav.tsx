@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Users, UserPlus, Plus } from 'lucide-react';
+import { Settings, Users, UserPlus, Plus, Book } from 'lucide-react';
 
 interface DashboardNavProps {
   activeTab: string;
@@ -47,6 +47,15 @@ export default function DashboardNav({ activeTab, pendingCount }: DashboardNavPr
       <NavLink href="/dashboard/admin?tab=add" isActive={activeTab === 'add'}>
         <Plus className="w-4 h-4" />
         Agregar Usuario
+      </NavLink>
+      
+      <NavLink href="/dashboard/admin?tab=add-class" isActive={activeTab==='add-class'}>    
+        <Plus className="w-4 h-4" />
+        Clases
+      </NavLink>
+      <NavLink href="/dashboard/admin?tab=classes" isActive={activeTab === 'classes'}>
+        <Book className="w-4 h-4" />
+        Clases
       </NavLink>
     </nav>
   );

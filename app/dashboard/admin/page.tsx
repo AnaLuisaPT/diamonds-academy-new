@@ -5,6 +5,8 @@ import PendingTab from "@/components/admin/PendingTab";
 import UsersTab from "@/components/admin/UsersTab";
 import AddUserTab from "@/components/admin/AddUserTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AddClassTab from "@/components/admin/AddClassTab";
+import ClassTab from "@/components/admin/ClassTab";
 
 interface AdminPageProps {
   searchParams: { tab?: string };
@@ -37,6 +39,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           {currentTab === "pending" && <PendingTab inscriptions={pendingInscriptions} />}
           {currentTab === "users"   && <UsersTab />}
           {currentTab === "add"     && <AddUserTab />}
+          {currentTab === 'add-class' && <AddClassTab />},
+          {currentTab === "classes" && <ClassTab />}
           {currentTab === "overview" && (
             <Card>
               <CardHeader>
